@@ -1,0 +1,131 @@
+@import "tailwindcss";
+@import "../styles/tokens.css";
+
+:root {
+  --color-navy: var(--navy);
+  --color-navy-2: var(--navy-2);
+  --color-yellow: var(--yellow);
+  --color-red: var(--red);
+  --color-green: var(--green);
+  --color-mist: var(--mist);
+  --color-ink: var(--ink);
+  --color-soft: var(--soft);
+  --color-line: var(--line);
+  --color-line-navy: var(--line-navy);
+  --color-footer: var(--footer);
+  --font-display: var(--font-big-shoulders);
+  --font-body: var(--font-barlow);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    overflow-x: clip;
+    background-color: #fff;
+    color: var(--navy);
+    font-family: var(--font-barlow), ui-sans-serif, system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.5;
+  }
+
+  h1,
+  h2,
+  h3 {
+    margin: 0;
+    font-family:
+      var(--font-big-shoulders), ui-sans-serif, system-ui, sans-serif;
+    font-weight: 900;
+    letter-spacing: 0.005em;
+    text-transform: uppercase;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--navy);
+    outline-offset: 2px;
+  }
+}
+
+.nav-link:hover,
+.nav-link[aria-expanded="true"] {
+  box-shadow: inset 0 -3px 0 var(--yellow);
+}
+
+.outlined-number {
+  color: var(--yellow);
+  -webkit-text-stroke: 2px var(--navy);
+}
+
+.sports-wall {
+  columns: 4 240px;
+  column-gap: 12px;
+}
+
+.floating-apply {
+  box-shadow: 5px 5px 0 var(--navy);
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.floating-apply:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0 var(--navy);
+}
+
+.apply-ring {
+  position: absolute;
+  inset: -8px;
+  border: 3px solid var(--yellow);
+  border-radius: 9999px;
+  pointer-events: none;
+  animation: apply-ring 1.9s ease-out infinite;
+}
+
+.assistant-typing {
+  animation: assistant-typing 1s ease-in-out infinite;
+}
+
+@keyframes apply-ring {
+  0% {
+    transform: scale(0.97);
+    opacity: 0.95;
+  }
+
+  100% {
+    transform: scale(1.14);
+    opacity: 0;
+  }
+}
+
+@keyframes assistant-typing {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .floating-apply {
+    transition: none;
+  }
+
+  .floating-apply:hover {
+    transform: none;
+    box-shadow: 5px 5px 0 var(--navy);
+  }
+
+  .apply-ring {
+    animation: none;
+    opacity: 0;
+  }
+
+  .assistant-typing {
+    animation: none;
+  }
+}

@@ -1,0 +1,13 @@
+node_modules
+.next
+out
+build
+coverage
+pnpm-lock.yaml
+next-env.d.ts
+reference
+docs
+AGENTS.md
+PROGRESS.md
+*.docx
+README.txt

@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Option F, Panels</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Barlow:wght@400;500;600;700&display=swap">
+<style>
+:root{--navy:#0A2352;--navy2:#17376F;--yel:#FEF800;--red:#DC0000;--grn:#2D4A2D;--mist:#EAF0F9;--ink:#1A1A1A;--soft:#C9D4EA}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0}
+a{color:inherit;text-decoration:none}
+img{max-width:100%}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ph{position:relative;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px 28px;min-height:120px;background:var(--navy2);color:#fff;font:600 12px/1.4 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.1em;text-transform:uppercase;overflow:hidden}
+.ph::before,.ph::after{content:"";position:absolute;width:22px;height:22px;opacity:.75}
+.ph::before{left:12px;top:12px;border-top:3px solid currentColor;border-left:3px solid currentColor}
+.ph::after{right:12px;bottom:12px;border-bottom:3px solid currentColor;border-right:3px solid currentColor}
+.t-n{background:#0A2352;color:#fff}.t-m{background:#17376F;color:#fff}.t-l{background:#D3DEF2;color:#0A2352}.t-s{background:#EAF0F9;color:#0A2352}.t-g{background:#2D4A2D;color:#fff}.t-w{background:#fff;color:#0A2352}
+.r43{aspect-ratio:4/3}.r34{aspect-ratio:3/4}.r169{aspect-ratio:16/9}.r11{aspect-ratio:1}.r32{aspect-ratio:3/2}.r45{aspect-ratio:4/5}
+/* floating actions */
+.fw{position:sticky;bottom:0;height:0;z-index:100;font-family:inherit}
+.apply{position:absolute;left:24px;bottom:24px;display:inline-flex;align-items:center;gap:10px;background:var(--yel);color:var(--navy);border:3px solid var(--navy);border-radius:999px;padding:15px 26px;font-weight:800;font-size:18px;line-height:1;box-shadow:5px 5px 0 var(--navy);transition:transform .15s,box-shadow .15s}
+.apply:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 var(--navy)}
+.apply-ring{position:absolute;inset:-8px;border:3px solid var(--yel);border-radius:999px;pointer-events:none;animation:ring 1.9s ease-out infinite}
+@keyframes ring{0%{transform:scale(.97);opacity:.95}100%{transform:scale(1.14);opacity:0}}
+.fw-r{position:absolute;right:24px;bottom:24px;display:flex;flex-direction:column;align-items:flex-end;gap:12px}
+.bot{position:relative}
+.bot summary{list-style:none;cursor:pointer}
+.bot summary::-webkit-details-marker{display:none}
+.bot-btn{display:inline-flex;align-items:center;gap:12px;background:var(--navy);color:#fff;border-radius:999px;padding:8px 22px 8px 8px;font-weight:700;font-size:15px;border:3px solid #fff;box-shadow:0 0 0 3px var(--navy)}
+.bot-av{width:40px;height:40px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+.bot-av img{width:24px;height:28px;object-fit:contain}
+.bot-panel{position:absolute;right:0;bottom:calc(100% + 14px);width:370px;max-width:calc(100vw - 48px);background:#fff;color:var(--ink);border:3px solid var(--navy);box-shadow:6px 6px 0 var(--navy);font-size:15px;text-align:left}
+.bot-head{background:var(--navy);color:#fff;padding:16px 18px;display:flex;gap:12px;align-items:center}
+.bot-head b{display:block;font-size:17px}
+.bot-head span.s{font-size:13px;color:var(--soft)}
+.bot-body{padding:16px 18px;display:flex;flex-direction:column;gap:10px;max-height:300px;overflow:auto}
+.msg{margin:0;padding:10px 14px;max-width:88%;line-height:1.45}
+.msg.b{background:var(--mist);color:var(--navy);align-self:flex-start}
+.msg.m{background:var(--navy);color:#fff;align-self:flex-end}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{font:inherit;font-size:13px;font-weight:600;color:var(--navy);background:#fff;border:2px solid var(--navy);padding:6px 12px;cursor:pointer}
+.chips button:hover{background:var(--yel)}
+.bot-in{display:flex;border-top:2px solid var(--navy)}
+.bot-in input{flex:1;min-width:0;border:0;padding:14px 16px;font:inherit;font-size:15px;outline-offset:-3px}
+.bot-in button{border:0;background:var(--yel);color:var(--navy);font:inherit;font-weight:800;padding:0 20px;cursor:pointer;border-left:2px solid var(--navy)}
+.bot-note{padding:8px 16px 12px;font-size:12px;color:#3A4B73}
+.wa{display:inline-flex;align-items:center;gap:10px;background:#0F7F42;color:#fff;border-radius:999px;padding:14px 22px;font-weight:700;font-size:15px;border:3px solid #fff;box-shadow:0 0 0 3px #0F7F42}
+.wa svg,.apply svg{flex:none}
+@media (max-width:640px){.apply{left:14px;bottom:14px;padding:13px 20px;font-size:16px}.fw-r{right:14px;bottom:14px}.bot-btn span.t,.wa span.t{display:none}.bot-btn{padding:8px}.wa{padding:14px}}
+@media (prefers-reduced-motion:reduce){.apply-ring{animation:none;opacity:0}}
+
+body{overflow-x:clip;font-family:'Barlow',sans-serif;color:var(--navy);background:#fff;font-size:17px}
+h1,h2,h3{font-family:'Big Shoulders Display',sans-serif;font-weight:900;text-transform:uppercase;margin:0;letter-spacing:.005em}
+.wrap{max-width:1320px;margin:0 auto;padding:0 40px}
+.lab{font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.hd{background:var(--navy);color:#fff;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 32px;padding:14px 40px}
+.brand{display:flex;align-items:center;gap:14px}
+.brand .c{background:#fff;padding:5px 7px;display:block}
+.brand img{width:40px;height:47px;object-fit:contain;display:block}
+.brand b{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:26px;line-height:1;display:block;text-transform:uppercase}
+.brand small{font-size:12px;font-weight:600;letter-spacing:.2em;color:var(--yel)}
+.nav{display:flex;flex-wrap:wrap;gap:4px 26px;font-weight:600;font-size:15px}
+.nav a{padding:8px 0}.nav a:hover{box-shadow:inset 0 -3px 0 var(--yel)}
+.top{background:var(--navy);color:#fff;padding:56px 40px 40px;border-top:1px solid #3C5287}
+.top .in{max-width:1320px;margin:0 auto;display:flex;flex-wrap:wrap;gap:28px 64px;align-items:flex-end;justify-content:space-between}
+.top h1{font-size:clamp(64px,11.5vw,168px);line-height:.84}
+.top h1 span{color:var(--yel)}
+.top p{margin:0 0 20px;max-width:380px;font-size:18px;line-height:1.5;color:var(--soft)}
+.btn{display:inline-block;background:var(--yel);color:var(--navy);padding:16px 30px;font-weight:700;font-size:17px;text-transform:uppercase;letter-spacing:.06em}
+.btn:hover{background:#fff}
+.panels{display:flex;height:640px;background:var(--navy)}
+.pn{position:relative;flex:1;overflow:hidden;border-right:4px solid var(--navy);transition:flex .55s ease;display:block;color:#fff}
+.pn:first-child{flex:5}
+.panels:hover .pn:first-child{flex:1}
+.panels .pn:hover,.panels .pn:focus-visible{flex:5}
+.pn .ph{position:absolute;inset:0;min-height:0}
+.pn .v{position:absolute;left:50%;top:28px;transform:translateX(-50%);writing-mode:vertical-rl;font-family:'Big Shoulders Display',sans-serif;font-weight:900;text-transform:uppercase;font-size:42px;letter-spacing:.04em;white-space:nowrap;background:var(--yel);color:var(--navy);padding:14px 6px;transition:opacity .3s}
+.pn:first-child .v{opacity:0}
+.panels:hover .pn:first-child .v{opacity:1}
+.panels .pn:hover .v{opacity:0}
+.pn .c{position:absolute;left:0;bottom:0;right:0;background:var(--navy);color:#fff;padding:24px 28px;opacity:0;transition:opacity .35s .15s;min-width:360px}
+.pn:first-child .c{opacity:1}
+.panels:hover .pn:first-child .c{opacity:0}
+.panels .pn:hover .c{opacity:1}
+.pn .c h2{font-size:48px;line-height:.95;color:var(--yel)}
+.pn .c p{margin:10px 0 0;font-size:17px;line-height:1.45;max-width:420px}
+.num{background:var(--yel);color:var(--navy)}
+.num .wrap{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+.num .n{min-width:0;padding:28px 20px;border-right:3px solid var(--navy)}
+.num .n:last-child{border-right:0}
+.num b{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:clamp(44px,13vw,80px);line-height:.9;display:block}
+.num span{font-weight:600;font-size:16px}
+.sec{padding:96px 0}
+.sec h2{font-size:clamp(46px,6vw,88px);line-height:.9}
+.feat{display:flex;flex-wrap:wrap;gap:0;margin-top:48px;border-top:4px solid var(--navy)}
+.feat .row{display:flex;flex-wrap:wrap;width:100%;border-bottom:4px solid var(--navy)}
+.feat .ph{flex:1 1 320px;min-height:300px}
+.feat .tx{flex:1 1 280px;min-width:0;padding:36px 28px;display:flex;flex-direction:column;justify-content:center}
+.feat .tx b{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:84px;line-height:.8;color:var(--yel);-webkit-text-stroke:2px var(--navy)}
+.feat .tx h3{font-size:46px;line-height:.95;margin:14px 0 10px}
+.feat .tx p{margin:0 0 14px;line-height:1.5}
+.feat .tx ul{margin:0;padding:0;list-style:none}
+.feat .tx li{padding:8px 0;border-top:1px solid #B8C4DB;font-weight:600}
+.feat .row:nth-child(even){flex-direction:row-reverse}
+.dark{background:var(--navy);color:#fff}
+.wall{columns:4 240px;column-gap:12px;margin-top:40px}
+.wall .ph{margin-bottom:12px;break-inside:avoid}
+.wall .ph b{position:absolute;left:12px;bottom:12px;background:var(--yel);color:var(--navy);padding:4px 10px;font-family:'Big Shoulders Display',sans-serif;font-size:22px;font-weight:900;letter-spacing:.04em}
+.car{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;padding:8px 0 20px;margin-top:40px}
+.car>div{flex:0 0 260px;scroll-snap-align:start;border:3px solid var(--navy);background:#fff}
+.car .inf{padding:14px 16px 18px}
+.car b{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:28px;line-height:1;display:block;text-transform:uppercase}
+.car span{font-size:15px}
+.hon{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:40px}
+.hon>div{background:#fff;color:var(--navy)}
+.hon .inf{padding:18px 20px 22px}
+.hon .inf b{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:60px;line-height:.9;display:block;color:var(--red)}
+.hon .inf strong{font-size:20px;display:block;margin-top:6px}
+.obs{background:var(--yel)}
+.obs .grid{display:flex;flex-wrap:wrap;gap:40px;margin-top:40px;align-items:stretch}
+.obs .big{flex:1 1 460px;min-width:0}
+.obs blockquote{margin:20px 0 8px;font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:clamp(30px,3.6vw,48px);line-height:1.05;text-transform:uppercase}
+.obs .list{flex:1 1 380px;min-width:0;display:flex;flex-direction:column;border-top:4px solid var(--navy)}
+.obs .li{display:flex;gap:16px;align-items:center;padding:16px 0;border-bottom:2px solid var(--navy)}
+.obs .li .ph{flex:0 0 96px;aspect-ratio:1;min-height:0;padding:4px;font-size:10px}
+.obs .li b{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:28px;line-height:1;display:block;text-transform:uppercase}
+.applysec{background:var(--navy);color:#fff;padding:96px 0;border-top:12px solid var(--yel)}
+.applysec h2{font-size:clamp(56px,9vw,128px);line-height:.86}
+.applysec h2 span{color:var(--yel)}
+.ft{background:#061636;color:#fff;padding:56px 40px 130px}
+.ft .cols{display:flex;flex-wrap:wrap;gap:36px 56px;max-width:1240px;margin:0 auto}
+.ft .cols>div{flex:1 1 200px;font-size:15px;line-height:1.8}
+.ft h4{margin:0 0 10px;font-size:12px;letter-spacing:.16em;color:var(--soft)}
+@media (max-width:820px){.panels{flex-direction:column;height:auto}.pn,.pn:first-child,.panels:hover .pn:first-child,.panels .pn:hover{flex:none;height:150px;border-right:0;border-bottom:4px solid var(--navy)}.pn .v{writing-mode:horizontal-tb;top:auto;bottom:16px;left:16px;transform:none;padding:8px 14px;font-size:30px;opacity:1!important}.pn .c{display:none}.num .wrap{grid-template-columns:repeat(2,minmax(0,1fr))}.num .n{border-bottom:3px solid var(--navy)}.wrap,.hd,.top{padding-left:20px;padding-right:20px}.feat .row:nth-child(even){flex-direction:row}}
+</style>
+</head>
+<body>
+<header class="hd">
+<a class="brand" href="#"><span class="c"><img src="assets/logo.png" alt="St. Joseph's College Ombaci crest"></span><span><b>St. Joseph's College</b><small>OMBACI · ARUA CITY</small></span></a>
+<nav class="nav"><a href="#">About</a><a href="#">Admissions</a><a href="#study">Study</a><a href="#sport">Sports</a><a href="#people">Staff</a><a href="#oldboys">Old Boys</a><a href="#">Contact</a></nav>
+</header>
+
+<section class="top"><div class="in">
+<h1>First among <span>equals.</span></h1>
+<div><p>A Catholic boys' boarding school in Arua City since 1943. Hover a panel to look around.</p><a class="btn" href="#apply">Admissions</a></div>
+</div></section>
+
+<section class="panels" aria-label="Explore the school">
+<a class="pn" href="#study"><div class="ph t-n"><span>Photo · Science lab, students at work</span></div><span class="v">Study</span><div class="c"><h2>Study</h2><p>Science laboratories, a computer lab and a library, with a science team that took silver in 2025.</p></div></a>
+<a class="pn" href="#"><div class="ph t-m"><span>Photo · Students in the quad</span></div><span class="v">Students</span><div class="c"><h2>Students</h2><p>Boarders from across the region, with chapel, clubs and the school magazine.</p></div></a>
+<a class="pn" href="#people"><div class="ph t-g"><span>Photo · Teachers in the staff room</span></div><span class="v">Staff</span><div class="c"><h2>Staff</h2><p>The headmaster and the teachers who lead each department.</p></div></a>
+<a class="pn" href="#sport"><div class="ph t-l"><span>Photo · Rugby, mid-tackle</span></div><span class="v">Sports</span><div class="c"><h2 style="color:var(--yel)">Sports</h2><p>Rugby, football, track, tennis, volleyball and basketball.</p></div></a>
+<a class="pn" href="#honours"><div class="ph t-n"><span>Photo · Medal ceremony</span></div><span class="v">Honours</span><div class="c"><h2>Honours</h2><p>Silver at the 2025 National Science Fair, and more to come.</p></div></a>
+<a class="pn" href="#oldboys"><div class="ph t-m"><span>Photo · Old Boys' dinner</span></div><span class="v">Old Boys</span><div class="c"><h2>Old Boys</h2><p>An association that gives back through labs, books and career talks.</p></div></a>
+</section>
+
+<section class="num"><div class="wrap">
+<div class="n"><b>1943</b><span>Founded by the Comboni Missionaries</span></div>
+<div class="n"><b>1960</b><span>Became a secondary school</span></div>
+<div class="n"><b>6</b><span>Sports on the school field</span></div>
+<div class="n"><b>O + A</b><span>UCE and UACE classes</span></div>
+</div></section>
+
+<section class="sec" id="study"><div class="wrap">
+<div class="lab" style="margin-bottom:14px">Learning resources</div>
+<h2>Where the learning happens</h2>
+<div class="feat">
+<div class="row"><div class="ph t-n"><span>Photo · Science laboratory, wide shot</span></div><div class="tx"><b>01</b><h3>Science laboratories</h3><p>Hands-on work that helped the school's team to silver at the 2025 National Science Fair.</p><ul><li>[Number of labs]</li><li>[Subjects practised]</li></ul></div></div>
+<div class="row"><div class="ph t-g"><span>Photo · Computer lab</span></div><div class="tx"><b>02</b><h3>Computer lab</h3><p>[One line on what students learn and how often they use it.]</p><ul><li>[Number of computers]</li><li>[Internet access]</li></ul></div></div>
+<div class="row"><div class="ph t-m"><span>Photo · Library shelves and readers</span></div><div class="tx"><b>03</b><h3>Library</h3><p>Restocked with help from the Old Boys' Association.</p><ul><li>[Number of books]</li><li>[Opening hours]</li></ul></div></div>
+</div>
+</div></section>
+
+<section class="sec dark" id="sport"><div class="wrap">
+<div class="lab" style="margin-bottom:14px;color:var(--yel)">Sports</div>
+<h2>On the field</h2>
+<div class="wall">
+<div class="ph t-m r34"><span>Photo</span><b>RUGBY</b></div>
+<div class="ph t-g r43"><span>Photo</span><b>FOOTBALL</b></div>
+<div class="ph t-l r11"><span>Photo</span><b>TRACK</b></div>
+<div class="ph t-n r45"><span>Photo</span><b>TENNIS</b></div>
+<div class="ph t-s r43"><span>Photo</span><b>VOLLEYBALL</b></div>
+<div class="ph t-m r34"><span>Photo</span><b>BASKETBALL</b></div>
+<div class="ph t-g r11"><span>Photo · Supporters</span></div>
+<div class="ph t-l r43"><span>Photo · Trophy presentation</span></div>
+</div>
+</div></section>
+
+<section class="sec" id="people" style="background:var(--mist)"><div class="wrap">
+<div class="lab" style="margin-bottom:14px">Staff</div>
+<h2>The people who lead</h2>
+<div class="car">
+<div><div class="ph t-n r34"><span>Portrait</span></div><div class="inf"><b>[Name]</b><span>Headmaster</span></div></div>
+<div><div class="ph t-m r34"><span>Portrait</span></div><div class="inf"><b>[Name]</b><span>Deputy headteacher</span></div></div>
+<div><div class="ph t-g r34"><span>Portrait</span></div><div class="inf"><b>[Name]</b><span>Head of Science and Technology</span></div></div>
+<div><div class="ph t-l r34"><span>Portrait</span></div><div class="inf"><b>[Name]</b><span>Chaplain</span></div></div>
+<div><div class="ph t-s r34"><span>Portrait</span></div><div class="inf"><b>[Name]</b><span>[Role]</span></div></div>
+<div><div class="ph t-n r34"><span>Portrait</span></div><div class="inf"><b>[Name]</b><span>[Role]</span></div></div>
+</div>
+</div></section>
+
+<section class="sec dark" id="honours"><div class="wrap">
+<div class="lab" style="margin-bottom:14px;color:var(--yel)">Honours</div>
+<h2>Recent results</h2>
+<div class="hon">
+<div><div class="ph t-l r43"><span style="color:#0A2352">Photo · Science team, silver medal</span></div><div class="inf"><b>2025</b><strong>Silver, National Science Fair</strong>Kololo Secondary School, Kampala</div></div>
+<div><div class="ph t-s r43"><span>Photo · Regional fair stand</span></div><div class="inf"><b>2025</b><strong>First, Arua regional fair</strong>The route to the nationals</div></div>
+<div><div class="ph t-l r43"><span>Photo</span></div><div class="inf"><b>[Year]</b><strong>[Achievement]</strong>[One line]</div></div>
+<div><div class="ph t-s r43"><span>Photo</span></div><div class="inf"><b>[Year]</b><strong>[Achievement]</strong>[One line]</div></div>
+</div>
+</div></section>
+
+<section class="sec obs" id="oldboys"><div class="wrap">
+<div class="lab" style="margin-bottom:14px">Old Boys</div>
+<h2>Ombacians, wherever they go</h2>
+<div class="grid">
+<div class="big"><div class="ph t-n r43"><span>Photo · Featured Old Boy, portrait or at work</span></div><blockquote>"[A line from the Old Boy about what Ombaci gave him.]"</blockquote><div style="font-weight:700">[Old Boy name], [Class of], [profession]</div></div>
+<div class="list">
+<div class="li"><div class="ph t-m"><span>Photo</span></div><div><b>[Old Boy name]</b>[Class of, profession]</div></div>
+<div class="li"><div class="ph t-g"><span>Photo</span></div><div><b>[Old Boy name]</b>[Class of, profession]</div></div>
+<div class="li"><div class="ph t-l"><span>Photo</span></div><div><b>[Old Boy name]</b>[Class of, profession]</div></div>
+<div style="padding-top:24px"><a class="btn" style="background:var(--navy);color:#fff" href="#">Join the Old Boys group</a></div>
+</div>
+</div>
+</div></section>
+
+<section class="applysec" id="apply"><div class="wrap">
+<div class="lab" style="color:var(--yel);margin-bottom:18px">Admissions</div>
+<h2>Senior One. <span>Senior Five.</span></h2>
+<p style="max-width:560px;font-size:19px;line-height:1.5;color:var(--soft);margin:24px 0 32px">[Opening and closing dates, requirements and the admissions contact, to be supplied by the school]</p>
+<a class="btn" href="#">How to apply</a>
+</div></section>
+
+<footer class="ft"><div class="cols">
+<div style="flex:2 1 300px"><div style="font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:34px;line-height:1;text-transform:uppercase">St. Joseph's College, Ombaci</div><div style="margin-top:8px;color:var(--yel);font-style:italic">Primus inter pares</div></div>
+<div><h4>VISIT</h4>Ombaci, Ayivu Division<br>Arua City, West Nile, Uganda</div>
+<div><h4>CONTACT</h4>[School phone]<br>[School email]</div>
+<div><h4>EXPLORE</h4><a href="#study">Study</a><br><a href="#sport">Sports</a><br><a href="#oldboys">Old Boys</a></div>
+</div></footer>
+<div class="fw">
+<a class="apply" href="#apply"><span class="apply-ring"></span>Apply now <span aria-hidden="true">→</span></a>
+<div class="fw-r">
+<details class="bot">
+<summary class="bot-btn" aria-label="OMBACIAN Assistant chat"><span class="bot-av"><img src="assets/logo.png" alt=""></span><span class="t">Ask OMBACIAN Assistant</span></summary>
+<div class="bot-panel" role="dialog" aria-label="OMBACIAN Assistant">
+<div class="bot-head"><span class="bot-av"><img src="assets/logo.png" alt=""></span><span><b>OMBACIAN Assistant</b><span class="s">Admissions, boarding, fees and visits</span></span></div>
+<div class="bot-body">
+<p class="msg b">Hello, I can answer questions about admissions, boarding, fees and visiting the school. What would you like to know?</p>
+<div class="chips"><button type="button">How do I apply for Senior One?</button><button type="button">What does a boarder bring?</button><button type="button">When can I visit?</button></div>
+<p class="msg m">How do I apply for Senior Five?</p>
+<p class="msg b">[Reply drawn from the school's published admissions page, with a link to it.]</p>
+</div>
+<form class="bot-in" onsubmit="return false"><label class="sr" for="botq">Your question</label><input id="botq" type="text" placeholder="Type your question"><button type="button">Send</button></form>
+<div class="bot-note">Answers come from the school's published information. For anything urgent, call the school.</div>
+</div>
+</details>
+<a class="wa" href="#"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-5.2A8.5 8.5 0 1 1 21 11.5z"/><path d="M9 9.5c.3 2.2 2.3 4.2 4.5 4.5l1.3-1.3-1.8-1-.8.7c-.8-.3-1.8-1.3-2.1-2.1l.7-.8-1-1.8z" fill="#fff" stroke="none"/></svg><span class="t">Chat on WhatsApp</span></a>
+</div>
+</div>
+
+</body>
+</html>
