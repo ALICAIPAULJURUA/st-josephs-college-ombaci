@@ -1,5 +1,9 @@
-import config from "@payload-config";
-import { GRAPHQL_POST, REST_OPTIONS } from "@payloadcms/next/routes";
+import { NextResponse } from "next/server";
 
-export const POST = GRAPHQL_POST(config);
-export const OPTIONS = REST_OPTIONS(config);
+export function POST() {
+  return new NextResponse("Not found", { status: 404 });
+}
+
+export function GET() {
+  return new NextResponse("Not found", { status: 404 });
+}

@@ -1,5 +1,5 @@
 import type { CollectionConfig } from "payload";
-import { adminOnly, adminOrSelf, isAdminField } from "./access";
+import { adminOnly, adminOrSelf, hasRole, isAdminField, staffUsers } from "./access";
 
 export const Users: CollectionConfig = {
   slug: "users",
@@ -9,7 +9,8 @@ export const Users: CollectionConfig = {
     defaultColumns: ["name", "email", "roles", "updatedAt"],
   },
   access: {
-    admin: ({ req }) => Boolean(req.user),
+    admin: ({ req: { user } }) =>
+      hasRole(user, ["admin", "editor", "communications", "admissions"]),
     read: adminOrSelf,
     create: adminOnly,
     update: adminOrSelf,
@@ -28,6 +29,7 @@ export const Users: CollectionConfig = {
         { label: "Editor", value: "editor" },
         { label: "Communications", value: "communications" },
         { label: "Admissions", value: "admissions" },
+        { label: "Viewer", value: "viewer" },
       ],
       access: {
         create: isAdminField,
@@ -35,7 +37,7 @@ export const Users: CollectionConfig = {
       },
       admin: {
         description:
-          "Editors manage all content. Communications manage news, notices, events and images. Admissions manage applications and enquiries.",
+          "Editors manage all content. Communications manage news, notices, events and albums. Admissions manage applications, enquiries and FAQs. Viewers can sign in but cannot use the admin screens.",
       },
     },
   ],

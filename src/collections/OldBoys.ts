@@ -42,6 +42,27 @@ export const OldBoys: CollectionConfig = {
       admin: { position: "sidebar" },
     },
     {
+      name: "consentRecorded",
+      type: "checkbox",
+      defaultValue: false,
+      label: "Consent recorded",
+      admin: {
+        position: "sidebar",
+        description: "Only publish a name, quote or portrait after the Old Boy has agreed.",
+      },
+      validate: (value, { data }) => {
+        const published =
+          (data as { _status?: string; editorialStatus?: string } | undefined)
+            ?._status === "published" ||
+          (data as { editorialStatus?: string } | undefined)
+            ?.editorialStatus === "published";
+        if (published && !value) {
+          return "Record consent before publishing an Old Boy profile.";
+        }
+        return true;
+      },
+    },
+    {
       name: "sortOrder",
       type: "number",
       defaultValue: 0,

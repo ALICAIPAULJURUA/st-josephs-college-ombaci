@@ -1,9 +1,5 @@
 import type { CollectionConfig } from "payload";
-import {
-  admissionsTeam,
-  anyone,
-  isAdmissionsField,
-} from "./access";
+import { admissionsTeam, anyone, isAdmissionsField } from "./access";
 
 export const Applications: CollectionConfig = {
   slug: "applications",
@@ -69,8 +65,20 @@ export const Applications: CollectionConfig = {
     {
       type: "row",
       fields: [
-        { name: "studentFirstName", type: "text", required: true, label: "Student first name" },
-        { name: "studentLastName", type: "text", required: true, label: "Student last name" },
+        {
+          name: "studentFirstName",
+          type: "text",
+          required: true,
+          maxLength: 120,
+          label: "Student first name",
+        },
+        {
+          name: "studentLastName",
+          type: "text",
+          required: true,
+          maxLength: 120,
+          label: "Student last name",
+        },
       ],
     },
     { name: "dateOfBirth", type: "date", label: "Date of birth" },
@@ -97,15 +105,31 @@ export const Applications: CollectionConfig = {
     {
       type: "row",
       fields: [
-        { name: "guardianName", type: "text", required: true, label: "Parent or guardian" },
-        { name: "guardianRelationship", type: "text", label: "Relationship to student" },
+        {
+          name: "guardianName",
+          type: "text",
+          required: true,
+          maxLength: 160,
+          label: "Parent or guardian",
+        },
+        {
+          name: "guardianRelationship",
+          type: "text",
+          maxLength: 80,
+          label: "Relationship to student",
+        },
       ],
     },
-    { name: "phone", type: "text", required: true },
+    { name: "phone", type: "text", required: true, maxLength: 40 },
     { name: "email", type: "email" },
-    { name: "district", type: "text" },
-    { name: "previousResults", type: "textarea", label: "Previous results" },
-    { name: "notes", type: "textarea", label: "Anything else" },
+    { name: "district", type: "text", maxLength: 120 },
+    {
+      name: "previousResults",
+      type: "textarea",
+      maxLength: 4000,
+      label: "Previous results",
+    },
+    { name: "notes", type: "textarea", maxLength: 4000, label: "Anything else" },
     {
       name: "consent",
       type: "checkbox",
@@ -117,6 +141,7 @@ export const Applications: CollectionConfig = {
       type: "textarea",
       access: {
         read: isAdmissionsField,
+        create: isAdmissionsField,
         update: isAdmissionsField,
       },
     },

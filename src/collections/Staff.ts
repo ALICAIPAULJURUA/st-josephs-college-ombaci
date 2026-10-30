@@ -46,6 +46,27 @@ export const Staff: CollectionConfig = {
       defaultValue: false,
       admin: { position: "sidebar" },
     },
+    {
+      name: "consentRecorded",
+      type: "checkbox",
+      defaultValue: false,
+      label: "Photograph consent recorded",
+      admin: {
+        position: "sidebar",
+        description: "Required before a staff portrait is shown on the public site.",
+      },
+      validate: (value, { data }) => {
+        const published =
+          (data as { _status?: string; editorialStatus?: string } | undefined)
+            ?._status === "published" ||
+          (data as { editorialStatus?: string } | undefined)
+            ?.editorialStatus === "published";
+        if (published && !value) {
+          return "Record photograph consent before publishing.";
+        }
+        return true;
+      },
+    },
     editorialStatusField,
     publishedAtField,
   ],

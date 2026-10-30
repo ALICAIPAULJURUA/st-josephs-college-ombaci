@@ -1,6 +1,6 @@
 import path from "node:path";
 import type { CollectionConfig } from "payload";
-import { anyone, communicationsEditors } from "./access";
+import { anyone, communicationsEditors, isCommunicationsField } from "./access";
 
 export const Media: CollectionConfig = {
   slug: "media",
@@ -71,6 +71,9 @@ export const Media: CollectionConfig = {
       name: "consentNote",
       type: "textarea",
       label: "Consent note",
+      access: {
+        read: isCommunicationsField,
+      },
       admin: {
         condition: (data) => Boolean(data?.showsStudents),
         description: "Where and when consent was recorded. Do not include private details.",

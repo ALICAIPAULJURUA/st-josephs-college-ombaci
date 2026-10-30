@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { SitePhoto } from "@/components/ui/SitePhoto";
+import { safeHref } from "@/lib/links";
 import { panels as seedPanels, type PanelSeed } from "@/content/seed";
 
 export function PanelsHero({ items = seedPanels }: { items?: PanelSeed[] }) {
@@ -31,7 +32,7 @@ export function PanelsHero({ items = seedPanels }: { items?: PanelSeed[] }) {
         return (
           <Link
             key={panel.label}
-            href={panel.href}
+            href={safeHref(panel.href)}
             aria-label={`${panel.label}: ${panel.description}`}
             className={[
               "group relative min-w-0 overflow-hidden border-r-4 border-navy text-white transition-[flex] duration-[550ms] motion-reduce:transition-none max-[821px]:h-[150px] max-[821px]:flex-none max-[821px]:border-b-4 max-[821px]:border-r-0",

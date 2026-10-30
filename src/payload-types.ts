@@ -431,6 +431,10 @@ export interface Notice {
   category: 'general' | 'academic' | 'admissions' | 'urgent';
   pinned?: boolean | null;
   /**
+   * Leave blank to show the notice as soon as it is published.
+   */
+  startsAt?: string | null;
+  /**
    * Leave blank for a notice that does not expire.
    */
   expiresAt?: string | null;
@@ -527,6 +531,10 @@ export interface Staff {
   email?: string | null;
   sortOrder?: number | null;
   featured?: boolean | null;
+  /**
+   * Required before a staff portrait is shown on the public site.
+   */
+  consentRecorded?: boolean | null;
   /**
    * Draft is private. Review is ready for a second pair of eyes. Published makes the item live.
    */
@@ -747,6 +755,10 @@ export interface OldBoy {
   } | null;
   photo?: (number | null) | Media;
   featured?: boolean | null;
+  /**
+   * Only publish a name, quote or portrait after the Old Boy has agreed.
+   */
+  consentRecorded?: boolean | null;
   sortOrder?: number | null;
   /**
    * Draft is private. Review is ready for a second pair of eyes. Published makes the item live.
@@ -829,6 +841,10 @@ export interface Album {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Do not publish an album of identifiable students without consent.
+   */
+  consentRecorded?: boolean | null;
   /**
    * Draft is private. Review is ready for a second pair of eyes. Published makes the item live.
    */
@@ -923,9 +939,9 @@ export interface User {
   id: number;
   name: string;
   /**
-   * Editors manage all content. Communications manage news, notices, events and images. Admissions manage applications and enquiries.
+   * Editors manage all content. Communications manage news, notices, events and albums. Admissions manage applications, enquiries and FAQs. Viewers can sign in but cannot use the admin screens.
    */
-  roles: ('admin' | 'editor' | 'communications' | 'admissions')[];
+  roles: ('admin' | 'editor' | 'communications' | 'admissions' | 'viewer')[];
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -1304,6 +1320,7 @@ export interface NoticesSelect<T extends boolean = true> {
   attachment?: T;
   category?: T;
   pinned?: T;
+  startsAt?: T;
   expiresAt?: T;
   editorialStatus?: T;
   publishedAt?: T;
@@ -1353,6 +1370,7 @@ export interface StaffSelect<T extends boolean = true> {
   email?: T;
   sortOrder?: T;
   featured?: T;
+  consentRecorded?: T;
   editorialStatus?: T;
   publishedAt?: T;
   updatedAt?: T;
@@ -1464,6 +1482,7 @@ export interface OldBoysSelect<T extends boolean = true> {
   bio?: T;
   photo?: T;
   featured?: T;
+  consentRecorded?: T;
   sortOrder?: T;
   editorialStatus?: T;
   publishedAt?: T;
@@ -1505,6 +1524,7 @@ export interface AlbumsSelect<T extends boolean = true> {
         caption?: T;
         id?: T;
       };
+  consentRecorded?: T;
   editorialStatus?: T;
   publishedAt?: T;
   updatedAt?: T;

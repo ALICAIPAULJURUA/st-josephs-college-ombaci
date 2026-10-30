@@ -1,5 +1,6 @@
 import type { GlobalConfig } from "payload";
 import { anyone, contentEditors } from "../collections/access";
+import { isSafeHref } from "@/lib/links";
 
 export const Navigation: GlobalConfig = {
   slug: "navigation",
@@ -16,14 +17,14 @@ export const Navigation: GlobalConfig = {
       labels: { singular: "Main link", plural: "Main links" },
       fields: [
         { name: "label", type: "text", required: true },
-        { name: "href", type: "text", required: true },
+        { name: "href", type: "text", required: true, validate: (value: unknown) => (typeof value === "string" && isSafeHref(value) ? true : "Use a relative path or an http(s), mailto or tel link.") },
         {
           name: "children",
           type: "array",
           labels: { singular: "Sub-link", plural: "Sub-links" },
           fields: [
             { name: "label", type: "text", required: true },
-            { name: "href", type: "text", required: true },
+            { name: "href", type: "text", required: true, validate: (value: unknown) => (typeof value === "string" && isSafeHref(value) ? true : "Use a relative path or an http(s), mailto or tel link.") },
           ],
         },
       ],
@@ -39,7 +40,7 @@ export const Navigation: GlobalConfig = {
           type: "array",
           fields: [
             { name: "label", type: "text", required: true },
-            { name: "href", type: "text", required: true },
+            { name: "href", type: "text", required: true, validate: (value: unknown) => (typeof value === "string" && isSafeHref(value) ? true : "Use a relative path or an http(s), mailto or tel link.") },
           ],
         },
       ],

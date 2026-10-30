@@ -1,5 +1,5 @@
 import type { CollectionConfig } from "payload";
-import { contentEditors, publishedOrAuthenticated } from "./access";
+import { communicationsEditors, publishedOrAuthenticated } from "./access";
 import {
   contentAdmin,
   contentHooks,
@@ -19,9 +19,9 @@ export const Albums: CollectionConfig = {
   },
   access: {
     read: publishedOrAuthenticated,
-    create: contentEditors,
-    update: contentEditors,
-    delete: contentEditors,
+    create: communicationsEditors,
+    update: communicationsEditors,
+    delete: communicationsEditors,
   },
   versions: contentVersions,
   hooks: contentHooks,
@@ -43,6 +43,27 @@ export const Albums: CollectionConfig = {
         mediaField("image", "Image"),
         { name: "caption", type: "text" },
       ],
+    },
+    {
+      name: "consentRecorded",
+      type: "checkbox",
+      defaultValue: false,
+      label: "Consent recorded for people in these photos",
+      admin: {
+        position: "sidebar",
+        description: "Do not publish an album of identifiable students without consent.",
+      },
+      validate: (value, { data }) => {
+        const published =
+          (data as { _status?: string; editorialStatus?: string } | undefined)
+            ?._status === "published" ||
+          (data as { editorialStatus?: string } | undefined)
+            ?.editorialStatus === "published";
+        if (published && !value) {
+          return "Record consent before publishing this album.";
+        }
+        return true;
+      },
     },
     editorialStatusField,
     publishedAtField,

@@ -15,10 +15,10 @@ export const Enquiries: CollectionConfig = {
     delete: admissionsTeam,
   },
   fields: [
-    { name: "name", type: "text", required: true },
+    { name: "name", type: "text", required: true, maxLength: 160 },
     { name: "email", type: "email", required: true },
-    { name: "phone", type: "text" },
-    { name: "subject", type: "text", required: true },
+    { name: "phone", type: "text", maxLength: 40 },
+    { name: "subject", type: "text", required: true, maxLength: 200 },
     { name: "message", type: "textarea", required: true, maxLength: 4000 },
     {
       name: "consent",
@@ -48,6 +48,7 @@ export const Enquiries: CollectionConfig = {
       type: "textarea",
       access: {
         read: isAdmissionsField,
+        create: isAdmissionsField,
         update: isAdmissionsField,
       },
     },

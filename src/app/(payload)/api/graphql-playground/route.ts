@@ -1,4 +1,5 @@
-import config from "@payload-config";
-import { GRAPHQL_PLAYGROUND_GET } from "@payloadcms/next/routes";
+import { NextResponse } from "next/server";
 
-export const GET = GRAPHQL_PLAYGROUND_GET(config);
+export function GET() {
+  return new NextResponse("Not found", { status: 404 });
+}

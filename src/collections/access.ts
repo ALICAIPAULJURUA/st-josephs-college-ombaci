@@ -1,6 +1,11 @@
 import type { Access, FieldAccess } from "payload";
 
-export type Role = "admin" | "editor" | "communications" | "admissions";
+export type Role =
+  | "admin"
+  | "editor"
+  | "communications"
+  | "admissions"
+  | "viewer";
 
 type RoleUser = {
   id?: number | string;
@@ -20,8 +25,16 @@ export const hasRole = (user: unknown, allowed: Role[]): boolean => {
 
 export const anyone: Access = () => true;
 
+export const nobody: Access = () => false;
+
 export const adminOnly: Access = ({ req: { user } }) =>
   hasRole(user, ["admin"]);
+
+export const staffUsers: Access = ({ req: { user } }) =>
+  hasRole(user, ["admin", "editor", "communications", "admissions"]);
+
+export const faqEditors: Access = ({ req: { user } }) =>
+  hasRole(user, ["admin", "editor", "admissions"]);
 
 export const authenticated: Access = ({ req: { user } }) => Boolean(user);
 
@@ -41,7 +54,10 @@ export const adminOrSelf: Access = ({ req: { user }, id }) => {
 };
 
 export const publishedOrAuthenticated: Access = ({ req }) => {
-  if (req.user) return true;
+  if (!req.user) return { _status: { equals: "published" } };
+  if (hasRole(req.user, ["admin", "editor", "communications", "admissions"])) {
+    return true;
+  }
   return { _status: { equals: "published" } };
 };
 

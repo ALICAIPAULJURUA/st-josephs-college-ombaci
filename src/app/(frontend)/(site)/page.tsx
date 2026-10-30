@@ -9,6 +9,8 @@ import { SportsWall } from "@/components/home/SportsWall";
 import { StaffCarousel } from "@/components/home/StaffCarousel";
 import { getHomeData } from "@/lib/home";
 
+export const revalidate = 60;
+
 export default async function HomePage() {
   const data = await getHomeData();
 

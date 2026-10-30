@@ -26,6 +26,7 @@ export const metadata: Metadata = {
   title: "St. Joseph's College, Ombaci",
   description:
     "Official website of St. Joseph's College, Ombaci, a Catholic boys' boarding school in Arua City, Uganda.",
+  icons: [{ rel: "icon", type: "image/png", url: "/crest.png" }],
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

@@ -63,8 +63,18 @@ export default buildConfig({
   csrf: [serverURL],
   admin: {
     user: Users.slug,
+    components: {
+      beforeLogin: ["/components/admin/Brand#LoginBrand"],
+      beforeDashboard: ["/components/admin/Brand#DashboardBrand"],
+      graphics: {
+        Icon: "/components/admin/Brand#Icon",
+        Logo: "/components/admin/Brand#Logo",
+      },
+    },
     meta: {
       titleSuffix: " | St. Joseph's College, Ombaci",
+      robots: "noindex,nofollow",
+      icons: [{ rel: "icon", type: "image/png", url: "/crest.png" }],
     },
     importMap: {
       baseDir: path.resolve(dirname),
@@ -119,6 +129,9 @@ export default buildConfig({
   sharp,
   typescript: {
     outputFile: path.resolve(dirname, "payload-types.ts"),
+  },
+  graphQL: {
+    disable: true,
   },
   telemetry: false,
 });

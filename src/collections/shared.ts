@@ -112,23 +112,31 @@ export const syncEditorialStatus: CollectionBeforeChangeHook = ({
   data,
   originalDoc,
 }) => {
-  if (!("editorialStatus" in data) && !("editorialStatus" in originalDoc)) {
-    return data;
-  }
-
   const next = { ...data };
-  const status = next._status ?? originalDoc?._status;
-  const editorial = next.editorialStatus ?? originalDoc?.editorialStatus;
+  const previousStatus = originalDoc?._status;
+  const previousEditorial = originalDoc?.editorialStatus;
+  const statusChanged =
+    next._status !== undefined && next._status !== previousStatus;
+  const editorialChanged =
+    next.editorialStatus !== undefined &&
+    next.editorialStatus !== previousEditorial;
 
-  if (status === "published" && editorial !== "published") {
-    next.editorialStatus = "published";
-  } else if (editorial === "published" && status !== "published") {
-    next._status = "published";
-  } else if (editorial !== "published" && status === "published") {
-    next._status = "draft";
+  if (statusChanged) {
+    if (next._status === "published") {
+      next.editorialStatus = "published";
+    } else if (previousEditorial === "published") {
+      next.editorialStatus = "draft";
+    }
+  } else if (editorialChanged) {
+    next._status =
+      next.editorialStatus === "published" ? "published" : "draft";
   }
 
-  if (next._status === "published" && !next.publishedAt) {
+  const published =
+    (next._status ?? previousStatus) === "published" ||
+    (next.editorialStatus ?? previousEditorial) === "published";
+
+  if (published && !next.publishedAt && !originalDoc?.publishedAt) {
     next.publishedAt = new Date().toISOString();
   }
 

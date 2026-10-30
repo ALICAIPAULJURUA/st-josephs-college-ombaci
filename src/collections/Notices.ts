@@ -1,5 +1,5 @@
-import type { Access, CollectionConfig, Where } from "payload";
-import { contentEditors } from "./access";
+import type { Access, CollectionConfig } from "payload";
+import { communicationsEditors } from "./access";
 import {
   contentAdmin,
   contentHooks,
@@ -10,16 +10,11 @@ import {
   richText,
   slugField,
 } from "./shared";
+import { publicNoticeConstraint } from "@/lib/notices";
 
 const publicNotices: Access = ({ req }) => {
   if (req.user) return true;
-  const where: Where = {
-    and: [
-      { _status: { equals: "published" } },
-      { expiresAt: { exists: false } },
-    ],
-  };
-  return where;
+  return publicNoticeConstraint();
 };
 
 export const Notices: CollectionConfig = {
@@ -30,9 +25,9 @@ export const Notices: CollectionConfig = {
   },
   access: {
     read: publicNotices,
-    create: contentEditors,
-    update: contentEditors,
-    delete: contentEditors,
+    create: communicationsEditors,
+    update: communicationsEditors,
+    delete: communicationsEditors,
   },
   versions: contentVersions,
   hooks: contentHooks,
@@ -59,6 +54,15 @@ export const Notices: CollectionConfig = {
       type: "checkbox",
       defaultValue: false,
       admin: { position: "sidebar" },
+    },
+    {
+      name: "startsAt",
+      type: "date",
+      admin: {
+        position: "sidebar",
+        date: { pickerAppearance: "dayAndTime" },
+        description: "Leave blank to show the notice as soon as it is published.",
+      },
     },
     {
       name: "expiresAt",

@@ -1,4 +1,3 @@
-import { cacheLife, cacheTag } from "next/cache";
 import { getPayload } from "payload";
 
 import type {
@@ -212,10 +211,6 @@ export type HomeData = {
 };
 
 export async function getHomeData(): Promise<HomeData> {
-  "use cache";
-  cacheLife("hours");
-  cacheTag("home");
-
   const { default: payloadConfig } = await import("@payload-config");
   const payload = await getPayload({ config: payloadConfig });
 

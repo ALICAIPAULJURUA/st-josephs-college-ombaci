@@ -1,31 +1,13 @@
-# AGENTS.md: St. Joseph's College Ombaci website
-
-You are building the official website for St. Joseph's College Ombaci (West Nile, Uganda). The full specification is in `docs/website-spec.md`. It is the single source of truth. The approved visual design is in `reference/f-panels/` (design "F Panels").
-
-## First, every session
-
-1. Read `docs/website-spec.md` in full before writing any code. If a session is resumed, re-read the sections for the current phase (listed in section 14 of the spec).
-2. Open `reference/f-panels/` and look at the HTML and CSS. Match it. Do not redesign it.
-3. Check `PROGRESS.md` at the repo root to see which phase is done and what is next. Create it in Phase 0 if it does not exist.
-
-## Working rules
-
-- Work on ONE phase at a time, in the order given in section 14 of the spec (Phase 0 to Phase 9). Do not start the next phase until I say so.
-- Follow the rules block in section 1 of the spec. If anything here conflicts with the spec, the spec wins, except where I tell you otherwise in chat.
-- Stack: Next.js App Router, TypeScript strict, Tailwind with CSS variable tokens, pnpm, Payload CMS at /admin, PostgreSQL. Use the choices already decided in section 3. If a decision (D1 to D4) is still open, stop and ask me.
-- Do not invent content. Facts come only from section 2 of the spec or from the CMS. Anything the school has not supplied (fees, term dates, emails, names, numbers) is a visible `[Placeholder: ...]` and is listed in section 13. Never write realistic made-up fees, names, dates or statistics.
-- Do not publish the 1981 history. See section 8.
-- Design: square corners, no gradients, no emojis, no generic AI-style UI. Use only the tokens and fonts in section 4. Photos are placeholders until real ones are supplied.
-- Accessibility, performance and security budgets in section 12 apply to every phase, not only Phase 8.
-- Never put secrets in the repo. `ANTHROPIC_API_KEY` stays server-side. Keep `.env.example` current.
-
-## Before you say a phase is done
-
-Run `pnpm lint && pnpm typecheck && pnpm test && pnpm build` and fix every failure. For UI work, also check these widths with Playwright screenshots: 1440, 1024, 820, 640, 375, and confirm there is no horizontal scroll. Then:
-
-1. Update `PROGRESS.md`: phase, what was built, what differs from the reference, open questions.
-2. Report back in plain language: what was built, what you could not match, what you need from me. Do not claim something passed unless you ran it.
-
-## If unsure
-
-Ask me. Do not guess, and do not add features that are not in the spec.
+1. Read docs/website-spec.md before every task. Work on one phase at a time.
+2. Match /reference/f-panels/index.html. Use only the tokens in spec section 9. No gradients, no emojis, square corners.
+3. Every piece of public text, every image and every list is editable from /admin. Never hard-code content in components. Components read from the database; defaults live in src/content/defaults/ and are loaded by `pnpm seed`.
+4. Write real, original copy in plain English (spec section 8). Use only facts from spec section 2. Where a fact is unknown (fees, dates, names, emails), write the visible marker [To be confirmed: <what>] instead of inventing it.
+5. Admin screens are for non-technical people: plain words, a hint under every field, big buttons, no jargon. See spec section 5.
+6. Use TinyMCE for all rich text, configured exactly as in spec section 6. No raw HTML editing.
+7. Images: follow spec section 7 (licences, local storage, alt text, sample flag). Never put a stock photo of a person next to a real person's name.
+8. TypeScript strict, no `any`, validate all input with zod, sanitise all rich text on save.
+9. Secrets in environment variables only. Never commit .env files or real passwords.
+10. After each task run: pnpm lint && pnpm typecheck && pnpm test && pnpm build. Fix everything before reporting done.
+11. Add a dependency only if needed and say why in the commit message. Conventional commits, one phase per branch.
+12. Never publish a student's name or photo without the consent flag. Never publish the 1981 history.
+13. If something is ambiguous, state your assumption at the top of your reply and continue.

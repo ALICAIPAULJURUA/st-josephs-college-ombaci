@@ -1,5 +1,5 @@
 import type { CollectionConfig } from "payload";
-import { contentEditors, publishedOrAuthenticated } from "./access";
+import { communicationsEditors, publishedOrAuthenticated } from "./access";
 import {
   contentAdmin,
   contentHooks,
@@ -20,9 +20,9 @@ export const Events: CollectionConfig = {
   },
   access: {
     read: publishedOrAuthenticated,
-    create: contentEditors,
-    update: contentEditors,
-    delete: contentEditors,
+    create: communicationsEditors,
+    update: communicationsEditors,
+    delete: communicationsEditors,
   },
   versions: contentVersions,
   hooks: contentHooks,
