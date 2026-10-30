@@ -20,6 +20,8 @@
     "node": "^22.23.4 || >=24.22.1"
   },
   "dependencies": {
+    "@libsql/client": "^0.18.0",
+    "drizzle-orm": "^0.45.4",
     "next": "16.4.3",
     "react": "19.3.0",
     "react-dom": "19.3.0",
@@ -32,6 +34,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "drizzle-kit": "^0.31.11",
     "eslint": "^9",
     "eslint-config-next": "16.4.3",
     "prettier": "^3.9.10",

@@ -242,3 +242,55 @@ Status: pending.
 ### Next
 *(pending)*
 
+---
+
+## Phase A: Remove Payload (spec Section 15)
+
+Status: complete.
+
+### What was removed
+
+- Payload CMS packages (already absent from `package.json`), `src/payload.config.ts`, `src/payload-types.ts`, `src/seed.ts`
+- `src/app/(payload)` (admin page, API and GraphQL routes, layout, import map)
+- `src/collections/` (all 20 collection files plus `access.ts` and `shared.ts`)
+- `src/components/admin/Brand.tsx` and `src/components/templates/LayoutBlocks.tsx`
+- `src/content/seed.ts` and `src/content/site.ts`; `src/globals/Home*.ts`, `Navigation.ts`, `SiteSettings.ts`
+- `src/lib/notices.ts`, `src/lib/payload.ts`, `src/lib/revalidate.ts` (revalidation hooks, admin branding, Payload media glue)
+- `withPayload` from `next.config.ts`; Cache Components (`cacheComponents`, `experimental.dynamicIO`, `experimental.ppr`) remain disabled
+- `pnpm-lock.yaml` pruned via `pnpm install`
+
+Nothing in the UI layer was touched: all components, styles, fonts, `next/font` setup and the floating widgets (`ApplyNow`, `WhatsApp`, OMBACIAN Assistant) remain as designed in `/reference/f-panels`.
+
+### Temporary replacement (data access)
+
+- `src/content/defaults/home.ts` and `src/content/defaults/site.ts` hold the starting content (moved/rewritten from `src/content/seed.ts` and `src/content/site.ts`).
+- `src/lib/home.ts` (`getHomeData`) and `src/lib/content.ts` (`getSiteSettings`, `getNavigation`, `getPage`, `photoFromPageMedia`) now read from those defaults so the public site still renders. `src/lib/navigation.ts` re-exports from `src/content/defaults/site`.
+- This is intentional and temporary: the custom admin at `/admin` with the database layer is built in later phases (spec Sections 4 to 7). No admin UI was built in Phase A.
+
+### Verification (all run and passed)
+
+- `pnpm install`: pass; lockfile current, no Payload packages remain
+- `pnpm lint`: pass
+- `pnpm typecheck`: pass
+- `pnpm test`: pass, 2 files and 5 tests
+- `pnpm build`: pass (Turbopack); `/` (static, revalidate 1m), `/_not-found` and `/design` prerendered; `/[...slug]` dynamic server-rendered on demand
+- `pnpm dev`: `GET /` returned 200; home page renders hero, six panels, numbers, learning rows, sports, staff, honours, Old Boys and admissions band from `src/content/defaults`, plus Header/Footer/floating widgets, with no errors in the browser or terminal
+
+### Assumptions and notes
+
+- The specification file is `docs/St. Joseph's College Ombaci Website Development Specification.md`. The path `docs/website-spec.md` named in `AGENTS.md` does not exist.
+- `.env.example` was corrupted in the working tree before the snapshot (it held PowerShell error text). It has been replaced with a clean example; Payload-only variables are gone.
+- `pnpm seed` has been removed until the custom admin and database exist. Public pages read `src/content/defaults/` directly in Phase A. This is temporary.
+- `src/components/ui/RichText.tsx` remains because it is a UI component, but no public page uses it yet. No admin UI was built.
+- `src/app/(frontend)/(site)/[...slug]/page.tsx` now calls `getPage`; it returns `notFound()` until page defaults exist.
+- `sharp` remains because `next/image` uses it in production. `graphql` and `@swc-node/register` were removed because only Payload needed them.
+- The local `.env.local` may still contain old Payload values. It is ignored by git and no longer read by the application.
+
+### Open questions
+
+- None blocking Phase A. Phase B (custom admin) is not started and awaits your go-ahead.
+
+### Next
+
+Phase B: custom admin at `/admin` per spec Sections 4 to 7 — only after you say so.
+
