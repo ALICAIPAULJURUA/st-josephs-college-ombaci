@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/Button";
-import { hero } from "@/content/seed";
+import { hero } from "@/content/defaults/home";
 
 export function HeroStrip() {
   return (

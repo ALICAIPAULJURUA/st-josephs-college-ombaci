@@ -1,7 +1,7 @@
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { SitePhoto } from "@/components/ui/SitePhoto";
 import { Tag } from "@/components/ui/Tag";
-import { sports as seedSports, type SportSeed } from "@/content/seed";
+import { sports as seedSports, type SportSeed } from "@/content/defaults/home";
 
 export function SportsWall({
   items = seedSports,

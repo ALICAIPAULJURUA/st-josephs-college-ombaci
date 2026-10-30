@@ -1,4 +1,4 @@
-import { siteSettings } from "@/content/site";
+import { siteSettings } from "@/content/defaults/site";
 
 export function buildWhatsAppHref(
   number: string | undefined,

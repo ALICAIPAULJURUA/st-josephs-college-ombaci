@@ -8,7 +8,7 @@ import { SitePhoto } from "@/components/ui/SitePhoto";
 import {
   staff as seedStaff,
   type StaffMemberSeed,
-} from "@/content/seed";
+} from "@/content/defaults/home";
 
 function ArrowIcon({ direction }: { direction: "left" | "right" }) {
   return (

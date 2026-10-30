@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/Card";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { SitePhoto } from "@/components/ui/SitePhoto";
-import { honours as seedHonours, type HonourSeed } from "@/content/seed";
+import { honours as seedHonours, type HonourSeed } from "@/content/defaults/home";
 
 export function HonoursGrid({
   items = seedHonours,

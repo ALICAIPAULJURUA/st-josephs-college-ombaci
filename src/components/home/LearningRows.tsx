@@ -4,7 +4,7 @@ import { SectionLabel } from "@/components/ui/SectionLabel";
 import {
   learningRows as seedLearningRows,
   type LearningRowSeed,
-} from "@/content/seed";
+} from "@/content/defaults/home";
 
 export function LearningRows({
   items = seedLearningRows,

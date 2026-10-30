@@ -2,11 +2,11 @@
 
 ## D1: CMS
 
-Payload CMS 3.92.1 embedded in the Next.js application at `/admin`.
+Payload CMS has been removed. A small custom admin will be built at `/admin` in a later phase. Until then the public site reads the defaults in `src/content/defaults/`.
 
 ## D2: Hosting and database
 
-Production is Vercel with Neon PostgreSQL. Local development and CI use SQLite through `PAYLOAD_DATABASE=sqlite`, as instructed in October 2026. Set `PAYLOAD_DATABASE=postgres` and `DATABASE_URI` in production.
+Production is Vercel with Turso. The custom admin will use libSQL through Drizzle ORM, as specified in section 3 of the website specification.
 
 ## D3: Production domain
 
@@ -18,4 +18,4 @@ Not yet supplied. Email fields remain placeholders.
 
 ## Image storage
 
-Phase 4 uses Payload's local upload storage for development. Production storage (Cloudinary or Cloudflare R2) remains to be configured before launch.
+The custom admin will store uploads locally in `public/uploads` for development. Production storage (Cloudinary or Cloudflare R2) remains to be configured before launch.

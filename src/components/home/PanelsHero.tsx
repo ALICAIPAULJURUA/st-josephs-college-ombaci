@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import { SitePhoto } from "@/components/ui/SitePhoto";
 import { safeHref } from "@/lib/links";
-import { panels as seedPanels, type PanelSeed } from "@/content/seed";
+import { panels as seedPanels, type PanelSeed } from "@/content/defaults/home";
 
 export function PanelsHero({ items = seedPanels }: { items?: PanelSeed[] }) {
   const [active, setActive] = useState(0);

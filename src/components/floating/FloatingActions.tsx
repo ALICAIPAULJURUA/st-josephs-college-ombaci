@@ -14,7 +14,7 @@ import {
   type ChatMessage,
 } from "@/components/floating/chat";
 import { WhatsAppButton } from "@/components/floating/WhatsAppButton";
-import { siteSettings } from "@/content/site";
+import { siteSettings } from "@/content/defaults/site";
 import { trackEvent } from "@/lib/analytics";
 import { buildWhatsAppHref } from "@/lib/whatsapp";
 

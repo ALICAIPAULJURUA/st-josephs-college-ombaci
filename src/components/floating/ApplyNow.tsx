@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { siteSettings } from "@/content/site";
+import { siteSettings } from "@/content/defaults/site";
 import { trackEvent } from "@/lib/analytics";
 
 export function ApplyNow({ className = "" }: { className?: string }) {

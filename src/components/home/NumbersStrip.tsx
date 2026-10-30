@@ -1,5 +1,5 @@
 import { StatCell } from "@/components/ui/StatCell";
-import { numbers as seedNumbers, type NumberSeed } from "@/content/seed";
+import { numbers as seedNumbers, type NumberSeed } from "@/content/defaults/home";
 
 const cellBorders = [
   "border-b-[3px] border-r-[3px] min-[821px]:border-b-0",

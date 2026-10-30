@@ -3,7 +3,7 @@ import { Placeholder } from "@/components/ui/Placeholder";
 import { Quote } from "@/components/ui/Quote";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { SitePhoto } from "@/components/ui/SitePhoto";
-import { oldBoys as seedOldBoys, type OldBoysSeed } from "@/content/seed";
+import { oldBoys as seedOldBoys, type OldBoysSeed } from "@/content/defaults/home";
 
 export function OldBoysFeature({
   data = seedOldBoys,

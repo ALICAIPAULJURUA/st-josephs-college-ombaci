@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { siteSettings } from "@/content/site";
+import { siteSettings } from "@/content/defaults/site";
 import { buildWhatsAppHref } from "@/lib/whatsapp";
 
 describe("buildWhatsAppHref", () => {

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/Button";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { SectionLabel } from "@/components/ui/SectionLabel";
-import { admissions } from "@/content/seed";
+import { admissions } from "@/content/defaults/home";
 
 export function ApplyBand() {
   return (

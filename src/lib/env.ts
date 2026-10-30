@@ -4,8 +4,9 @@ const envSchema = z.object({
   NODE_ENV: z
     .enum(["development", "test", "production"])
     .default("development"),
-  DATABASE_URI: z.string().min(1).optional(),
-  PAYLOAD_SECRET: z.string().min(1).optional(),
+  DATABASE_URL: z.string().min(1).optional(),
+  DATABASE_AUTH_TOKEN: z.string().min(1).optional(),
+  SESSION_SECRET: z.string().min(1).optional(),
   NEXT_PUBLIC_SITE_URL: z.url().optional(),
   NEXT_PUBLIC_WHATSAPP_NUMBER: z.string().min(1).optional(),
   ANTHROPIC_API_KEY: z.string().min(1).optional(),

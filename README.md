@@ -9,7 +9,7 @@ The approved visual design is Direction F (Panels), in `reference/f-panels/`. Th
 - Next.js App Router with TypeScript strict
 - Tailwind CSS 4 with design tokens in `src/styles/tokens.css`
 - pnpm
-- Payload CMS at `/admin` and PostgreSQL (planned, Phase 4)
+- A custom admin at `/admin` (planned; Payload has been removed)
 - Vitest and Playwright
 
 ## Getting started
@@ -48,7 +48,7 @@ public/                Static assets, including the crest
 scripts/               Repository checks
 src/app/               App Router routes and layouts
 src/components/        Layout, home, floating and UI components
-src/content/           Typed seed content used before the CMS
+src/content/defaults/  Typed starting content used until the custom admin is built
 src/lib/               Navigation, environment and shared logic
 src/styles/            Design tokens
 tests/                 Unit and Playwright tests
