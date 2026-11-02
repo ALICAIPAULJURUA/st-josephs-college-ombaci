@@ -39,6 +39,10 @@ test("public metadata has a canonical, social metadata, and nonce CSP", async ({
 test("admin CSP permits local scripts needed by TinyMCE", async ({ page }) => {
   const response = await page.goto("/admin/login");
   expect(response?.ok()).toBe(true);
+  await expect(page.locator('link[rel="icon"]')).toHaveAttribute(
+    "href",
+    "/crest.png",
+  );
 
   const policy = response?.headers()["content-security-policy"] ?? "";
   const scriptPolicy = policy

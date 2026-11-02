@@ -15,13 +15,10 @@ export const metadata: Metadata = {
     index: false,
     follow: false,
   },
+  icons: [{ rel: "icon", type: "image/png", url: "/crest.png" }],
 };
 
-export default function AdminRootLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export default function AdminRootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" data-scroll-behavior="smooth">
       <body className={styles.adminBody}>{children}</body>
