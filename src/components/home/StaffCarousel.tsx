@@ -2,13 +2,9 @@
 
 import { useRef } from "react";
 
-import { Placeholder } from "@/components/ui/Placeholder";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { SitePhoto } from "@/components/ui/SitePhoto";
-import {
-  staff as seedStaff,
-  type StaffMemberSeed,
-} from "@/content/defaults/home";
+import type { HomeData } from "@/lib/home";
 
 function ArrowIcon({ direction }: { direction: "left" | "right" }) {
   return (
@@ -31,9 +27,15 @@ function ArrowIcon({ direction }: { direction: "left" | "right" }) {
 }
 
 export function StaffCarousel({
-  items = seedStaff,
+  items,
+  label,
+  heading,
+  intro,
 }: {
-  items?: StaffMemberSeed[];
+  items: HomeData["staff"];
+  label: string;
+  heading: string;
+  intro: string;
 }) {
   const track = useRef<HTMLUListElement>(null);
 
@@ -53,10 +55,13 @@ export function StaffCarousel({
       <div className="mx-auto max-w-[1320px] px-10 max-[821px]:px-5">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <SectionLabel className="mb-3.5">Staff</SectionLabel>
+            <SectionLabel className="mb-3.5">{label}</SectionLabel>
             <h2 className="text-[clamp(46px,6vw,88px)] leading-[0.9]">
-              The people who lead
+              {heading}
             </h2>
+            <p className="mt-5 max-w-[760px] text-[17px] leading-[1.5]">
+              {intro}
+            </p>
           </div>
 
           <div className="ml-auto flex gap-2">
@@ -101,11 +106,9 @@ export function StaffCarousel({
               />
               <div className="px-4 pb-[18px] pt-3.5">
                 <b className="block font-display text-[28px] font-extrabold uppercase leading-none">
-                  {member.name ?? <Placeholder>Name</Placeholder>}
+                  {member.name ?? ""}
                 </b>
-                <span className="text-[15px]">
-                  {member.role ?? <Placeholder>Role</Placeholder>}
-                </span>
+                <span className="text-[15px]">{member.role ?? ""}</span>
               </div>
             </li>
           ))}

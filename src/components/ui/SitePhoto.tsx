@@ -59,8 +59,10 @@ export function SitePhoto({
           src={src}
           alt={alt}
           fill
+          fetchPriority={priority ? "high" : "auto"}
+          loading={priority ? "eager" : "lazy"}
+          quality={65}
           sizes={sizes}
-          priority={priority}
           className="object-cover"
         />
       ) : (

@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1793367182718,
+      "tag": "0000_parched_morlocks",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1793368080571,
+      "tag": "0001_elite_morph",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1793371857241,
+      "tag": "0002_mysterious_firebrand",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1793385831981,
+      "tag": "0003_careful_hex",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1793436969197,
+      "tag": "0004_reflective_moondragon",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1793519106093,
+      "tag": "0005_even_valkyrie",
+      "breakpoints": true
+    }
+  ]
+}

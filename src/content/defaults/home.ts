@@ -1,4 +1,7 @@
 import type { PhotoRatio, PhotoTone } from "@/components/ui/SitePhoto";
+import type { PageFields } from "@/content/schemas";
+import { homePageSchema } from "@/content/schemas/home";
+import { sampleMediaRef } from "./sample-media";
 
 export type PhotoSeed = {
   src?: string;
@@ -24,9 +27,7 @@ export type LearningRowSeed = {
   number: string;
   title: string;
   body?: string;
-  bodyPlaceholder?: string;
-  facts?: string[];
-  factPlaceholders: string[];
+  facts: string[];
   photo: PhotoSeed;
 };
 
@@ -61,7 +62,10 @@ export const hero = {
   panelHint: "Hover a panel to look around.",
   touchHint: "Tap a panel to look around.",
   admissionsHref: "#apply",
+  admissionsLabel: "How to apply",
 } as const;
+
+export const numbersLabel = "The college in numbers";
 
 export const panels: PanelSeed[] = [
   {
@@ -70,7 +74,8 @@ export const panels: PanelSeed[] = [
     description:
       "Science laboratories, a computer lab and a library, with a science team that took silver in 2025.",
     photo: {
-      alt: "Science laboratory with students at work",
+      src: sampleMediaRef("science-lab"),
+      alt: "Laboratory glassware with a test tube held above a bowl",
       label: "Photo · Science lab, students at work",
       tone: "navy",
     },
@@ -79,20 +84,23 @@ export const panels: PanelSeed[] = [
     label: "Students",
     href: "/student-life",
     description:
-      "Boarders from across the region, with chapel, clubs and the school magazine.",
+      "A Catholic boys' boarding school in Arua City, with a chapel and the school magazine.",
     photo: {
-      alt: "Students in the school quad",
-      label: "Photo · Students in the quad",
+      src: sampleMediaRef("students-running"),
+      alt: "Students with backpacks approaching a classroom, seen from behind",
+      label: "Photo · Students approaching a classroom",
       tone: "navy-2",
     },
   },
   {
     label: "Staff",
     href: "/staff",
-    description: "The headmaster and the teachers who lead each department.",
+    description:
+      "Learn about school leadership and staff through clearly labelled profile examples.",
     photo: {
-      alt: "Teachers in the staff room",
-      label: "Photo · Teachers in the staff room",
+      src: sampleMediaRef("library"),
+      alt: "Sample library photo, not a staff portrait",
+      label: "Illustrative school setting · not a staff portrait",
       tone: "green",
     },
   },
@@ -101,7 +109,8 @@ export const panels: PanelSeed[] = [
     href: "/sports",
     description: "Rugby, football, track, tennis, volleyball and basketball.",
     photo: {
-      alt: "Rugby match in progress",
+      src: sampleMediaRef("rugby"),
+      alt: "Players competing in a rugby match on a grass field",
       label: "Photo · Rugby, mid-tackle",
       tone: "tint",
     },
@@ -109,10 +118,11 @@ export const panels: PanelSeed[] = [
   {
     label: "Honours",
     href: "/achievements",
-    description: "Silver at the 2025 National Science Fair, and more to come.",
+    description: "The college won silver at the 2025 National Science Fair.",
     photo: {
-      alt: "Medal ceremony",
-      label: "Photo · Medal ceremony",
+      src: sampleMediaRef("science-lab"),
+      alt: "Sample science laboratory photo, not an awards ceremony",
+      label: "Illustrative school setting · not an awards ceremony",
       tone: "navy",
     },
   },
@@ -120,10 +130,11 @@ export const panels: PanelSeed[] = [
     label: "Old Boys",
     href: "/old-boys",
     description:
-      "An association that gives back through labs, books and career talks.",
+      "An association that has supported an ICT lab and library stock.",
     photo: {
-      alt: "Old Boys' dinner",
-      label: "Photo · Old Boys' dinner",
+      src: sampleMediaRef("computer-lab"),
+      alt: "Sample computer laboratory photo, not an Old Boys' event",
+      label: "Illustrative school setting · not an Old Boys' event",
       tone: "navy-2",
     },
   },
@@ -132,18 +143,24 @@ export const panels: PanelSeed[] = [
 export const numbers: NumberSeed[] = [
   { value: "1943", label: "Founded by the Comboni Missionaries" },
   { value: "1960", label: "Became a secondary school" },
-  { value: "6", label: "Sports on the school field" },
+  { value: "6", label: "Sports associated with the college" },
   { value: "O + A", label: "UCE and UACE classes" },
 ];
+
+export const learningLabel = "Learning resources";
+export const learningHeading = "Where the learning happens";
+export const learningIntro =
+  "The school has science labs, a computer lab, a library, a clinic, school transport and a chapel.";
 
 export const learningRows: LearningRowSeed[] = [
   {
     number: "01",
     title: "Science laboratories",
     body: "Hands-on work that helped the school's team to silver at the 2025 National Science Fair.",
-    factPlaceholders: ["Number of labs", "Subjects practised"],
+    facts: ["Verified facility", "Practical learning example · sample wording"],
     photo: {
-      alt: "Science laboratory, wide shot",
+      src: sampleMediaRef("science-lab"),
+      alt: "Laboratory glassware with a test tube held above a bowl",
       label: "Photo · Science laboratory, wide shot",
       tone: "navy",
     },
@@ -151,11 +168,11 @@ export const learningRows: LearningRowSeed[] = [
   {
     number: "02",
     title: "Computer lab",
-    bodyPlaceholder:
-      "One line on what students learn and how often they use it.",
-    factPlaceholders: ["Number of computers", "Internet access"],
+    body: "Sample description: a computer lab can support digital learning and research.",
+    facts: ["Verified facility", "Access details: sample wording"],
     photo: {
-      alt: "Computer lab",
+      src: sampleMediaRef("computer-lab"),
+      alt: "Desktop computers in an empty computer laboratory",
       label: "Photo · Computer lab",
       tone: "green",
     },
@@ -164,9 +181,10 @@ export const learningRows: LearningRowSeed[] = [
     number: "03",
     title: "Library",
     body: "Restocked with help from the Old Boys' Association.",
-    factPlaceholders: ["Number of books", "Opening hours"],
+    facts: ["Verified facility", "Opening details: sample wording"],
     photo: {
-      alt: "Library shelves and readers",
+      src: sampleMediaRef("library"),
+      alt: "An empty library aisle and study desk beside a window",
       label: "Photo · Library shelves and readers",
       tone: "navy-2",
     },
@@ -181,122 +199,159 @@ export const sports: SportSeed[] = [
       label: "Photo",
       tone: "navy-2",
       ratio: "3/4",
+      src: sampleMediaRef("rugby"),
     },
   },
   {
     name: "Football",
     photo: {
-      alt: "Football action",
+      alt: "Two players contesting a ball in an outdoor football match",
       label: "Photo",
       tone: "green",
       ratio: "4/3",
+      src: sampleMediaRef("football"),
     },
   },
   {
     name: "Track",
     photo: {
-      alt: "Track event",
+      alt: "A runner on a red outdoor athletics track",
       label: "Photo",
       tone: "tint",
       ratio: "1/1",
+      src: sampleMediaRef("track"),
     },
   },
   {
     name: "Tennis",
     photo: {
-      alt: "Tennis match",
+      alt: "Players in a tennis game on an outdoor court",
       label: "Photo",
       tone: "navy",
       ratio: "4/5",
+      src: sampleMediaRef("tennis"),
     },
   },
   {
     name: "Volleyball",
     photo: {
-      alt: "Volleyball match",
+      alt: "Players competing at the net in an indoor volleyball game",
       label: "Photo",
       tone: "mist",
       ratio: "4/3",
+      src: sampleMediaRef("volleyball"),
     },
   },
   {
     name: "Basketball",
     photo: {
-      alt: "Basketball game",
+      alt: "Players contesting a jump shot during a basketball game",
       label: "Photo",
       tone: "navy-2",
       ratio: "3/4",
+      src: sampleMediaRef("basketball"),
     },
   },
   {
+    name: "Sample rugby photo",
     photo: {
-      alt: "Supporters at a school match",
-      label: "Photo · Supporters",
+      src: sampleMediaRef("rugby"),
+      alt: "Sample rugby match photo, not a St. Joseph's College team",
+      label: "Illustrative sports photo · not a school team",
       tone: "green",
       ratio: "1/1",
     },
   },
   {
+    name: "Sample football photo",
     photo: {
-      alt: "Trophy presentation",
-      label: "Photo · Trophy presentation",
+      src: sampleMediaRef("football"),
+      alt: "Sample football match photo, not a St. Joseph's College team",
+      label: "Illustrative sports photo · not a school team",
       tone: "tint",
       ratio: "4/3",
     },
   },
 ];
 
+export const sportsLabel = "Sports";
+export const sportsHeading = "On the field";
+export const sportsIntro =
+  "Rugby, football, track, tennis, volleyball and basketball.";
+
 export const staff: StaffMemberSeed[] = [
   {
-    role: "Headmaster",
+    name: "Charles Ondoga (previously listed)",
+    role: "Previously listed as headmaster; current role not verified",
     photo: {
-      alt: "Portrait of the headmaster",
-      label: "Portrait",
+      src: sampleMediaRef("library"),
+      alt: "Sample library photo, not a portrait of Charles Ondoga",
+      label: "Illustrative school setting · not a portrait",
       tone: "navy",
       ratio: "3/4",
     },
   },
   {
+    name: "Sample staff profile",
+    role: "Teaching staff · example only",
     photo: {
-      alt: "Staff portrait",
-      label: "Portrait",
+      src: sampleMediaRef("computer-lab"),
+      alt: "Sample computer laboratory photo, not a staff portrait",
+      label: "Illustrative school setting · not a portrait",
       tone: "navy-2",
       ratio: "3/4",
     },
   },
   {
+    name: "Sample staff profile",
+    role: "Teaching staff · example only",
     photo: {
-      alt: "Staff portrait",
-      label: "Portrait",
+      src: sampleMediaRef("library"),
+      alt: "Sample library photo, not a staff portrait",
+      label: "Illustrative school setting · not a portrait",
       tone: "green",
       ratio: "3/4",
     },
   },
   {
+    name: "Sample staff profile",
+    role: "Teaching staff · example only",
     photo: {
-      alt: "Staff portrait",
-      label: "Portrait",
+      src: sampleMediaRef("science-lab"),
+      alt: "Sample science laboratory photo, not a staff portrait",
+      label: "Illustrative school setting · not a portrait",
       tone: "tint",
       ratio: "3/4",
     },
   },
   {
+    name: "Sample staff profile",
+    role: "Teaching staff · example only",
     photo: {
-      alt: "Staff portrait",
-      label: "Portrait",
+      src: sampleMediaRef("computer-lab"),
+      alt: "Sample computer laboratory photo, not a staff portrait",
+      label: "Illustrative school setting · not a portrait",
       tone: "mist",
       ratio: "3/4",
     },
   },
   {
+    name: "Sample staff profile",
+    role: "Teaching staff · example only",
     photo: {
-      alt: "Staff portrait",
-      label: "Portrait",
+      src: sampleMediaRef("library"),
+      alt: "Sample library photo, not a staff portrait",
+      label: "Illustrative school setting · not a portrait",
       tone: "navy",
       ratio: "3/4",
     },
   },
 ];
+
+export const staffLabel = "Staff";
+export const staffHeading = "The people who lead";
+export const staffIntro =
+  "The first profile reflects a previous record; the other profiles are illustrative examples.";
 
 export const honours: HonourSeed[] = [
   {
@@ -304,10 +359,11 @@ export const honours: HonourSeed[] = [
     title: "Silver, National Science Fair",
     line: "Kololo Secondary School, Kampala",
     photo: {
-      alt: "Science team with their silver medal",
-      label: "Photo · Science team, silver medal",
+      alt: "Sample science laboratory photo, not a medal-winning team",
+      label: "Illustrative science photo · not a school team",
       tone: "tint",
       ratio: "4/3",
+      src: sampleMediaRef("science-lab"),
     },
   },
   {
@@ -315,102 +371,158 @@ export const honours: HonourSeed[] = [
     title: "First, Arua regional science fair",
     line: "The route to the nationals",
     photo: {
-      alt: "Regional science fair stand",
-      label: "Photo · Regional fair stand",
+      alt: "Sample computer laboratory photo, not a science fair stand",
+      label: "Illustrative school setting · not a science fair",
       tone: "mist",
       ratio: "4/3",
+      src: sampleMediaRef("computer-lab"),
     },
   },
   {
+    year: "Demo",
+    title: "Illustrative achievement example",
+    line: "Layout sample only; not a school result.",
     photo: {
-      alt: "School achievement",
-      label: "Photo",
+      alt: "Sample library photo, not a school achievement",
+      label: "Illustrative example · not a school result",
       tone: "tint",
       ratio: "4/3",
+      src: sampleMediaRef("library"),
     },
   },
   {
+    year: "Demo",
+    title: "Illustrative achievement example",
+    line: "Layout sample only; not a school result.",
     photo: {
-      alt: "School achievement",
-      label: "Photo",
+      alt: "Sample science laboratory photo, not a school achievement",
+      label: "Illustrative example · not a school result",
       tone: "mist",
       ratio: "4/3",
+      src: sampleMediaRef("science-lab"),
     },
   },
 ];
 
+export const honoursLabel = "Honours";
+export const honoursHeading = "Recent results";
+export const honoursIntro =
+  "In 2025, the school was first at the Arua regional science fair and won silver at the National Science Fair.";
+
 export type OldBoysSeed = {
   featured: {
     quote?: string;
-    quotePlaceholder: string;
     name?: string;
-    namePlaceholder: string;
     meta?: string;
-    metaPlaceholder: string;
     photo: PhotoSeed;
   };
   list: {
     name?: string;
-    namePlaceholder: string;
     meta?: string;
-    metaPlaceholder: string;
     photo: PhotoSeed;
   }[];
   joinHref: string;
+  joinLabel: string;
 };
 
 export const oldBoys: OldBoysSeed = {
   featured: {
-    quotePlaceholder: "A line from the Old Boy about what Ombaci gave him.",
-    namePlaceholder: "Old Boy name",
-    metaPlaceholder: "Class, profession",
+    quote:
+      "Sample quote for layout only; this is not a real Old Boy's statement.",
+    name: "Sample Old Boy · not a real person",
+    meta: "Illustrative profile",
     photo: {
-      alt: "Featured Old Boy, portrait or at work",
-      label: "Photo · Featured Old Boy, portrait or at work",
+      src: sampleMediaRef("computer-lab"),
+      alt: "Sample computer laboratory photo, not an Old Boy portrait",
+      label: "Illustrative school setting · not a portrait",
       tone: "navy",
       ratio: "4/3",
     },
   },
   list: [
     {
-      namePlaceholder: "Old Boy name",
-      metaPlaceholder: "Class, profession",
+      name: "Sample Old Boy · not a real person",
+      meta: "Illustrative profile",
       photo: {
-        alt: "Old Boy portrait",
-        label: "Photo",
+        src: sampleMediaRef("library"),
+        alt: "Sample library photo, not an Old Boy portrait",
+        label: "Illustrative school setting · not a portrait",
         tone: "navy-2",
         ratio: "1/1",
       },
     },
     {
-      namePlaceholder: "Old Boy name",
-      metaPlaceholder: "Class, profession",
+      name: "Sample Old Boy · not a real person",
+      meta: "Illustrative profile",
       photo: {
-        alt: "Old Boy portrait",
-        label: "Photo",
+        src: sampleMediaRef("computer-lab"),
+        alt: "Sample computer laboratory photo, not an Old Boy portrait",
+        label: "Illustrative school setting · not a portrait",
         tone: "green",
         ratio: "1/1",
       },
     },
     {
-      namePlaceholder: "Old Boy name",
-      metaPlaceholder: "Class, profession",
+      name: "Sample Old Boy · not a real person",
+      meta: "Illustrative profile",
       photo: {
-        alt: "Old Boy portrait",
-        label: "Photo",
+        src: sampleMediaRef("library"),
+        alt: "Sample library photo, not an Old Boy portrait",
+        label: "Illustrative school setting · not a portrait",
         tone: "tint",
         ratio: "1/1",
       },
     },
   ],
   joinHref: "/old-boys",
+  joinLabel: "Join the Old Boys group",
 };
+
+export const oldBoysLabel = "Old Boys";
+export const oldBoysHeading = "Ombacians, wherever they go";
+export const oldBoysIntro =
+  "The Ombaci Old Boys' Association has supported an ICT lab and library stock.";
+
+export const newsStrip = {
+  enabled: false,
+  label: "News",
+  heading: "From the college",
+} as const;
 
 export const admissions = {
   label: "Admissions",
   title: "Senior One.",
   accent: "Senior Five.",
-  bodyPlaceholder:
-    "Opening and closing dates, requirements and the admissions contact, to be supplied by the school",
+  body: "Applications are for Senior One and Senior Five. Sample application dates and requirements are not official; contact the school for current details.",
   href: "/apply",
+  buttonLabel: "How to apply",
 } as const;
+
+export const homePageDefaults = {
+  hero,
+  numbersLabel,
+  panels,
+  numbers,
+  learningLabel,
+  learningHeading,
+  learningIntro,
+  learningRows,
+  sportsLabel,
+  sportsHeading,
+  sportsIntro,
+  sports,
+  staffLabel,
+  staffHeading,
+  staffIntro,
+  staff,
+  honoursLabel,
+  honoursHeading,
+  honoursIntro,
+  honours,
+  oldBoysLabel,
+  oldBoysHeading,
+  oldBoysIntro,
+  oldBoys,
+  newsStrip,
+  admissions,
+} satisfies PageFields<typeof homePageSchema.fields>;

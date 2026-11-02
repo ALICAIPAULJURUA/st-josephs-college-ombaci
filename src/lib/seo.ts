@@ -1,40 +1,47 @@
 import type { Metadata } from "next";
 
-const SITE_NAME = "St. Joseph's College, Ombaci";
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-
 export function buildMetadata({
   title,
   description,
   canonical,
   openGraphImage,
+  siteName,
+  siteUrl,
 }: {
   title?: string | null;
   description?: string | null;
   canonical?: string | null;
   openGraphImage?: string | null;
+  siteName?: string;
+  siteUrl?: string;
 } = {}): Metadata {
-  const pageTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
-  const resolvedCanonical = canonical ? `${SITE_URL}${canonical}` : SITE_URL;
+  const name = siteName ?? "St. Joseph's College, Ombaci";
+  const baseUrl =
+    siteUrl ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const pageTitle = title ?? name;
+  const brandedTitle = title ? `${title} | ${name}` : name;
+  const resolvedCanonical = canonical
+    ? new URL(canonical, baseUrl).toString()
+    : baseUrl;
+  const image = openGraphImage ?? "/crest.png";
 
   return {
     title: pageTitle,
     description: description ?? undefined,
-    metadataBase: new URL(SITE_URL),
-    alternates: { canonical: resolvedCanonical },
+    metadataBase: new URL(baseUrl),
+    alternates: { canonical: canonical ?? "/" },
     openGraph: {
-      title: pageTitle,
+      title: brandedTitle,
       description: description ?? undefined,
-      siteName: SITE_NAME,
+      siteName: name,
       url: resolvedCanonical,
-      images: openGraphImage ? [{ url: openGraphImage }] : undefined,
+      images: [{ url: image, alt: `${name} crest` }],
     },
     twitter: {
       card: "summary_large_image",
-      title: pageTitle,
+      title: brandedTitle,
       description: description ?? undefined,
-      images: openGraphImage ? [openGraphImage] : undefined,
+      images: [image],
     },
     robots: { index: true, follow: true },
   };

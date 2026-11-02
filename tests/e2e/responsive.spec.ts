@@ -12,9 +12,6 @@ for (const route of routes) {
       test(`has no horizontal scroll at ${width}px`, async ({ page }) => {
         await page.setViewportSize({ width, height: 900 });
         await page.goto(route.path);
-        await page.waitForFunction(() =>
-          Array.from(document.images).every((image) => image.complete),
-        );
         await page.evaluate(() => document.fonts.ready);
 
         const overflows = await page.evaluate(

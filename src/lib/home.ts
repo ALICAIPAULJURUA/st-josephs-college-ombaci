@@ -1,38 +1,24 @@
-import {
-  honours as seedHonours,
-  learningRows as seedLearningRows,
-  numbers as seedNumbers,
-  oldBoys as seedOldBoys,
-  panels as seedPanels,
-  sports as seedSports,
-  staff as seedStaff,
-  type HonourSeed,
-  type LearningRowSeed,
-  type NumberSeed,
-  type OldBoysSeed,
-  type PanelSeed,
-  type SportSeed,
-  type StaffMemberSeed,
-} from "@/content/defaults/home";
+import { buildValidator, type PageFields } from "@/content/schemas";
+import { homePageSchema } from "@/content/schemas/home";
+import { getPage } from "@/db/queries";
 
-export type HomeData = {
-  panels: PanelSeed[];
-  numbers: NumberSeed[];
-  learningRows: LearningRowSeed[];
-  sports: SportSeed[];
-  staff: StaffMemberSeed[];
-  honours: HonourSeed[];
-  oldBoys: OldBoysSeed;
-};
+export type HomeData = PageFields<typeof homePageSchema.fields>;
 
 export async function getHomeData(): Promise<HomeData> {
-  return {
-    panels: seedPanels,
-    numbers: seedNumbers,
-    learningRows: seedLearningRows,
-    sports: seedSports,
-    staff: seedStaff,
-    honours: seedHonours,
-    oldBoys: seedOldBoys,
-  };
+  const page = await getPage(homePageSchema.key);
+  if (!page) {
+    throw new Error(
+      "The published Home page is missing from the database. Run pnpm seed to load the starting content.",
+    );
+  }
+
+  const result = buildValidator(homePageSchema).safeParse(page.fields);
+  if (!result.success) {
+    const issues = result.error.issues
+      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+      .join("; ");
+    throw new Error(`The published Home page is invalid: ${issues}`);
+  }
+
+  return result.data;
 }

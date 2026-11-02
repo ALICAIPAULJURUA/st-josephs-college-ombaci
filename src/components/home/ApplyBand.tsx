@@ -1,9 +1,8 @@
 import { Button } from "@/components/ui/Button";
-import { Placeholder } from "@/components/ui/Placeholder";
 import { SectionLabel } from "@/components/ui/SectionLabel";
-import { admissions } from "@/content/defaults/home";
+import type { HomeData } from "@/lib/home";
 
-export function ApplyBand() {
+export function ApplyBand({ data }: { data: HomeData["admissions"] }) {
   return (
     <section
       id="apply"
@@ -11,16 +10,15 @@ export function ApplyBand() {
     >
       <div className="mx-auto max-w-[1320px] px-10 max-[821px]:px-5">
         <SectionLabel tone="yellow" className="mb-[18px]">
-          {admissions.label}
+          {data.label}
         </SectionLabel>
         <h2 className="text-[clamp(56px,9vw,128px)] leading-[0.86]">
-          {admissions.title}{" "}
-          <span className="text-yellow">{admissions.accent}</span>
+          {data.title} <span className="text-yellow">{data.accent}</span>
         </h2>
         <p className="mb-8 mt-6 max-w-[560px] text-[19px] leading-[1.5] text-soft">
-          <Placeholder>{admissions.bodyPlaceholder}</Placeholder>
+          {data.body}
         </p>
-        <Button href={admissions.href}>How to apply</Button>
+        <Button href={data.href}>{data.buttonLabel}</Button>
       </div>
     </section>
   );

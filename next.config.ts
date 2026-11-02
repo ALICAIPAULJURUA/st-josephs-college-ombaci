@@ -1,13 +1,13 @@
 import type { NextConfig } from "next";
 
-import {
-  productionSecurityHeaders,
-  securityHeaders,
-} from "./src/lib/headers";
+import { productionSecurityHeaders, securityHeaders } from "./src/lib/headers";
 
 const nextConfig: NextConfig = {
   devIndicators: false,
   poweredByHeader: false,
+  images: {
+    qualities: [65, 75],
+  },
   turbopack: {
     rules: {
       "globals.css": {

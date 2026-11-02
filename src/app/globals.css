@@ -1,13 +1,14 @@
 @import "tailwindcss";
 @import "../styles/tokens.css";
 
-:root {
+@theme inline {
   --color-navy: var(--navy);
   --color-navy-2: var(--navy-2);
   --color-yellow: var(--yellow);
   --color-red: var(--red);
   --color-green: var(--green);
   --color-mist: var(--mist);
+  --color-tint: var(--tint);
   --color-ink: var(--ink);
   --color-soft: var(--soft);
   --color-line: var(--line);
@@ -53,9 +54,38 @@
   box-shadow: inset 0 -3px 0 var(--yellow);
 }
 
+@media (min-width: 822px) {
+  .panels-hero:has(> a:hover) > a:not(:hover),
+  .panels-hero:has(> a:hover) > a:focus-within {
+    flex: 1 1 0%;
+  }
+
+  .panels-hero:not(:has(> a:hover)):not(:has(> a:focus-within)) > a:first-child,
+  .panels-hero:not(:has(> a:hover)) > a:focus-within,
+  .panels-hero > a:hover {
+    flex: 5 1 0%;
+  }
+
+  .panels-hero:not(:has(> a:hover)):not(:has(> a:focus-within))
+    > a:first-child
+    .panel-label,
+  .panels-hero:not(:has(> a:hover)) > a:focus-within .panel-label,
+  .panels-hero > a:hover .panel-label {
+    opacity: 0;
+  }
+
+  .panels-hero:not(:has(> a:hover)):not(:has(> a:focus-within))
+    > a:first-child
+    .panel-copy,
+  .panels-hero:not(:has(> a:hover)) > a:focus-within .panel-copy,
+  .panels-hero > a:hover .panel-copy {
+    opacity: 1;
+  }
+}
+
 .outlined-number {
-  color: var(--yellow);
-  -webkit-text-stroke: 2px var(--navy);
+  color: var(--navy);
+  -webkit-text-stroke: 2px var(--yellow);
 }
 
 .sports-wall {
@@ -86,6 +116,86 @@
 
 .assistant-typing {
   animation: assistant-typing 1s ease-in-out infinite;
+}
+
+.prose-school {
+  max-width: 760px;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.prose-school > * + * {
+  margin-top: 1em;
+}
+
+.prose-school h2,
+.prose-school h3 {
+  color: var(--navy);
+  font-family: var(--font-big-shoulders), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 900;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.prose-school h2 {
+  font-size: clamp(32px, 5vw, 56px);
+}
+
+.prose-school h3 {
+  font-size: clamp(26px, 4vw, 40px);
+}
+
+.prose-school a {
+  color: var(--navy);
+  text-decoration-color: var(--yellow);
+  text-decoration-line: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 3px;
+}
+
+.prose-school ul,
+.prose-school ol {
+  padding-left: 1.5rem;
+}
+
+.prose-school ul {
+  list-style: disc;
+}
+
+.prose-school ol {
+  list-style: decimal;
+}
+
+.prose-school li + li {
+  margin-top: 0.5rem;
+}
+
+.prose-school blockquote {
+  border-left: 4px solid var(--yellow);
+  padding-left: 1rem;
+}
+
+.prose-school table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.prose-school th {
+  background: var(--navy);
+  color: #fff;
+  text-align: left;
+}
+
+.prose-school th,
+.prose-school td {
+  border-bottom: 1px solid var(--line);
+  padding: 0.75rem;
+}
+
+.prose-school img {
+  height: auto;
+  max-width: 100%;
+  border: 3px solid var(--navy);
 }
 
 @keyframes apply-ring {

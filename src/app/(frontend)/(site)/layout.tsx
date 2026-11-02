@@ -4,8 +4,30 @@ import { FloatingActions } from "@/components/floating/FloatingActions";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { NoticeBar } from "@/components/layout/NoticeBar";
+import { getSiteSettings } from "@/lib/content";
+import {
+  isChatConfigured,
+  isChatProviderConfigured,
+} from "@/lib/chat/config";
 
-export default function SiteLayout({ children }: { children: ReactNode }) {
+export const revalidate = 60;
+
+export default async function SiteLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const settings = await getSiteSettings();
+  const notice =
+    settings.notice.enabled && settings.notice.text?.trim()
+      ? {
+          id: `${settings.notice.text}:${settings.notice.href ?? ""}`,
+          text: settings.notice.text,
+          ...(settings.notice.href ? { href: settings.notice.href } : {}),
+          dismissLabel: settings.notice.dismissLabel,
+        }
+      : undefined;
+
   return (
     <>
       <a
@@ -15,14 +37,19 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
         Skip to content
       </a>
       <div className="flex min-h-dvh flex-col">
-        <NoticeBar />
-        <Header />
+        <NoticeBar notice={notice} />
+        <Header settings={settings} />
         <main id="main" className="flex-1">
           {children}
         </main>
-        <Footer />
+        <Footer settings={settings} />
       </div>
-      <FloatingActions />
+      <FloatingActions
+        settings={settings}
+        assistantAvailable={isChatProviderConfigured()}
+        assistantReady={isChatConfigured()}
+        turnstileSiteKey={process.env.TURNSTILE_SITE_KEY ?? ""}
+      />
     </>
   );
 }

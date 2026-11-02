@@ -1,3 +1,6 @@
+import type { PageFields } from "@/content/schemas";
+import type { settingsSchema } from "@/content/schemas/settings";
+
 export type NavChild = {
   label: string;
   href: string;
@@ -20,9 +23,37 @@ export const siteSettings = {
   district: "West Nile",
   country: "Uganda",
   applyHref: "/apply",
+  applyLabel: "Apply now",
   contactHref: "/contact",
+  headerLocation: "OMBACI · ARUA CITY",
+  phone: "SAMPLE ONLY — phone not supplied.",
+  email: "SAMPLE ONLY — no school email address is supplied.",
+  officeHours: "SAMPLE ONLY — ask the school before visiting.",
+  mapPin:
+    "SAMPLE ONLY — exact map pin not supplied; general location: Ombaci, Ayivu Division, Arua City.",
+  whatsappNumber: "+256770911635",
   whatsappMessage:
     "Hello St. Joseph's College, Ombaci. I would like to ask about admissions.",
+  whatsappLabel: "Chat on WhatsApp",
+  assistantLabel: "Ask OMBACIAN Assistant",
+  menuLabel: "Menu",
+  closeLabel: "Close",
+  applicationsOpen: false,
+  assistantEnabled: true,
+  logo: {
+    src: "/crest.png",
+    alt: "St. Joseph's College Ombaci crest",
+    label: "School crest",
+    tone: "navy",
+  },
+  notice: {
+    enabled: false,
+    text: "",
+    href: "",
+    dismissLabel: "Dismiss",
+  },
+  visitHeading: "Visit",
+  contactHeading: "Contact",
 } as const;
 
 export const primaryNavigation: NavItem[] = [
@@ -74,8 +105,14 @@ export const defaultNavigation = {
   footer: [{ title: "Explore", links: footerExplore }],
 };
 
-export type SiteSettings = typeof siteSettings;
-export type Navigation = typeof defaultNavigation;
+export const settingsDefaults = {
+  ...siteSettings,
+  navigation: defaultNavigation,
+  termDates: [],
+} satisfies PageFields<typeof settingsSchema.fields>;
+
+export type SiteSettings = PageFields<typeof settingsSchema.fields>;
+export type Navigation = SiteSettings["navigation"];
 
 export type DefaultPage = {
   slug: string;

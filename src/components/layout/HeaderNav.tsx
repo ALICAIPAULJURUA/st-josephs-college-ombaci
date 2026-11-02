@@ -3,13 +3,22 @@
 import Link from "next/link";
 import { useState } from "react";
 
-import { primaryNavigation } from "@/lib/navigation";
+import type { Navigation } from "@/content/defaults/site";
+import { safeHref } from "@/lib/links";
 
 function submenuId(label: string) {
   return `nav-${label.toLowerCase().replace(/\s+/g, "-")}`;
 }
 
-export function HeaderNav() {
+export function HeaderNav({
+  items,
+  menuLabel,
+  closeLabel,
+}: {
+  items: Navigation["primary"];
+  menuLabel: string;
+  closeLabel: string;
+}) {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -33,11 +42,11 @@ export function HeaderNav() {
         aria-controls="mobile-navigation"
         onClick={() => setMobileOpen((value) => !value)}
       >
-        {mobileOpen ? "Close" : "Menu"}
+        {mobileOpen ? closeLabel : menuLabel}
       </button>
 
       <ul className="hidden items-center gap-x-[26px] gap-y-1 min-[821px]:flex">
-        {primaryNavigation.map((item) => {
+        {items.map((item) => {
           const hasChildren = Boolean(item.children?.length);
           const isOpen = openDropdown === item.label;
           const id = submenuId(item.label);
@@ -67,7 +76,7 @@ export function HeaderNav() {
               }}
             >
               <Link
-                href={item.href}
+                href={safeHref(item.href)}
                 className="nav-link block py-2 text-[15px] font-semibold focus-visible:outline-yellow"
                 aria-haspopup={hasChildren ? "true" : undefined}
                 aria-expanded={hasChildren ? isOpen : undefined}
@@ -89,7 +98,7 @@ export function HeaderNav() {
                     {item.children?.map((child) => (
                       <li key={child.href}>
                         <Link
-                          href={child.href}
+                          href={safeHref(child.href)}
                           className="block px-4 py-2 text-[15px] font-semibold hover:bg-yellow focus-visible:bg-yellow"
                           onClick={() => setOpenDropdown(null)}
                         >
@@ -112,13 +121,13 @@ export function HeaderNav() {
         }`}
       >
         <ul>
-          {primaryNavigation.map((item) => (
+          {items.map((item) => (
             <li
               key={item.href}
               className="border-b-2 border-line last:border-b-0"
             >
               <Link
-                href={item.href}
+                href={safeHref(item.href)}
                 className="block px-5 py-4 font-display text-[28px] font-extrabold uppercase leading-none"
                 onClick={closeAll}
               >
@@ -130,7 +139,7 @@ export function HeaderNav() {
                   {item.children.map((child) => (
                     <li key={child.href}>
                       <Link
-                        href={child.href}
+                        href={safeHref(child.href)}
                         className="block py-2 text-[15px] font-semibold"
                         onClick={closeAll}
                       >

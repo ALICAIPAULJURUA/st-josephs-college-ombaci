@@ -3,7 +3,7 @@ import { z } from "zod";
 export type FieldBase = {
   name: string;
   label: string;
-  hint?: string;
+  hint: string;
   required?: boolean;
 };
 
@@ -12,15 +12,31 @@ export type TextareaField = FieldBase & { type: "textarea"; max?: number };
 export type RichtextField = FieldBase & { type: "richtext" };
 export type ImageField = FieldBase & { type: "image" };
 export type LinkField = FieldBase & { type: "link" };
-export type NumberField = FieldBase & { type: "number"; min?: number; max?: number };
+export type NumberField = FieldBase & {
+  type: "number";
+  min?: number;
+  max?: number;
+};
 export type DateField = FieldBase & { type: "date" };
 export type ToggleField = FieldBase & { type: "toggle" };
 export type SelectField = FieldBase & {
   type: "select";
-  options: { label: string; value: string }[];
+  options: readonly { label: string; value: string }[];
 };
-export type GroupField = FieldBase & { type: "group"; fields: Field[] };
-export type ListField = FieldBase & { type: "list"; itemFields: Field[] };
+export type GroupField = FieldBase & {
+  type: "group";
+  fields: readonly Field[];
+};
+export type ObjectListField = FieldBase & {
+  type: "list";
+  itemFields: readonly Field[];
+};
+export type TextListField = FieldBase & {
+  type: "list";
+  itemType: "text";
+  max?: number;
+};
+export type ListField = ObjectListField | TextListField;
 export type SeoField = FieldBase & { type: "seo" };
 
 export type Field =
@@ -41,95 +57,153 @@ export type PageSchema = {
   key: string;
   label: string;
   route: string;
-  fields: Field[];
+  template?: PageTemplate;
+  collection?: string;
+  fields: readonly Field[];
 };
 
-export function text(config: Omit<TextField, "type">): TextField {
-  return { ...config, type: "text" };
+export type PageTemplate =
+  | "story"
+  | "info"
+  | "resources"
+  | "listing"
+  | "detail"
+  | "contact";
+
+type FieldConfig<T extends Field> = Omit<T, "type">;
+
+function typedField<
+  const Type extends Field["type"],
+  const Config extends { name: string },
+>(type: Type, config: Config): Config & { type: Type } {
+  return { ...config, type };
 }
 
-export function textarea(config: Omit<TextareaField, "type">): TextareaField {
-  return { ...config, type: "textarea" };
+export function text<const Config extends FieldConfig<TextField>>(
+  config: Config,
+) {
+  return typedField("text", config);
 }
 
-export function richtext(config: Omit<RichtextField, "type">): RichtextField {
-  return { ...config, type: "richtext" };
+export function textarea<const Config extends FieldConfig<TextareaField>>(
+  config: Config,
+) {
+  return typedField("textarea", config);
 }
 
-export function image(config: Omit<ImageField, "type">): ImageField {
-  return { ...config, type: "image" };
+export function richtext<const Config extends FieldConfig<RichtextField>>(
+  config: Config,
+) {
+  return typedField("richtext", config);
 }
 
-export function link(config: Omit<LinkField, "type">): LinkField {
-  return { ...config, type: "link" };
+export function image<const Config extends FieldConfig<ImageField>>(
+  config: Config,
+) {
+  return typedField("image", config);
 }
 
-export function number(config: Omit<NumberField, "type">): NumberField {
-  return { ...config, type: "number" };
+export function link<const Config extends FieldConfig<LinkField>>(
+  config: Config,
+) {
+  return typedField("link", config);
 }
 
-export function date(config: Omit<DateField, "type">): DateField {
-  return { ...config, type: "date" };
+export function number<const Config extends FieldConfig<NumberField>>(
+  config: Config,
+) {
+  return typedField("number", config);
 }
 
-export function toggle(config: Omit<ToggleField, "type">): ToggleField {
-  return { ...config, type: "toggle" };
+export function date<const Config extends FieldConfig<DateField>>(
+  config: Config,
+) {
+  return typedField("date", config);
 }
 
-export function select(config: Omit<SelectField, "type">): SelectField {
-  return { ...config, type: "select" };
+export function toggle<const Config extends FieldConfig<ToggleField>>(
+  config: Config,
+) {
+  return typedField("toggle", config);
 }
 
-export function group(config: Omit<GroupField, "type">): GroupField {
-  return { ...config, type: "group" };
+export function select<const Config extends FieldConfig<SelectField>>(
+  config: Config,
+) {
+  return typedField("select", config);
 }
 
-export function list(config: Omit<ListField, "type">): ListField {
-  return { ...config, type: "list" };
+export function group<const Config extends FieldConfig<GroupField>>(
+  config: Config,
+) {
+  return typedField("group", config);
 }
 
-export function seo(config: Omit<SeoField, "type">): SeoField {
-  return { ...config, type: "seo" };
+export function list<
+  const Config extends
+    FieldConfig<ObjectListField> | FieldConfig<TextListField>,
+>(config: Config) {
+  return typedField("list", config);
 }
 
-export function definePage(config: PageSchema): PageSchema {
+export function seo<const Config extends FieldConfig<SeoField>>(
+  config: Config,
+) {
+  return typedField("seo", config);
+}
+
+export function definePage<const Schema extends PageSchema>(
+  config: Schema,
+): Schema {
   return config;
 }
 
-export function definePageFields(fields: Field[]): Field[] {
+export function definePageFields<const Fields extends readonly Field[]>(
+  fields: Fields,
+): Fields {
   return fields;
 }
 
-function fieldToZod(field: Field): z.ZodTypeAny {
-  let schema: z.ZodTypeAny;
+function fieldToZod(field: Field): z.ZodType {
+  let schema: z.ZodType;
 
   switch (field.type) {
     case "text":
     case "textarea":
-    case "richtext":
-    case "link": {
-      schema = z.string();
-      if (field.max) schema = schema.max(field.max);
+    case "richtext": {
+      let value = z.string();
+      if ("max" in field && field.max !== undefined)
+        value = value.max(field.max);
+      if (field.required) value = value.min(1);
+      schema = value;
       break;
     }
     case "image": {
       schema = z.object({
-        src: z.string().min(1),
+        src: z.string().min(1).optional(),
         alt: z.string().min(1),
         label: z.string().min(1),
-        tone: z.string(),
-        ratio: z.string().optional(),
+        tone: z.string().min(1),
+        ratio: z.string().min(1).optional(),
+      });
+      break;
+    }
+    case "link": {
+      schema = z.object({
+        label: z.string().min(1),
+        href: z.string().min(1),
       });
       break;
     }
     case "number": {
-      schema = z.number();
-      if (field.min !== undefined) schema = schema.min(field.min);
-      if (field.max !== undefined) schema = schema.max(field.max);
+      let value = z.number();
+      if (field.min !== undefined) value = value.min(field.min);
+      if (field.max !== undefined) value = value.max(field.max);
+      schema = value;
       break;
     }
     case "date": {
-      schema = z.string().datetime({ offset: true }).optional();
+      schema = z.iso.date().or(z.iso.datetime({ offset: true }));
       break;
     }
     case "toggle": {
@@ -137,7 +211,15 @@ function fieldToZod(field: Field): z.ZodTypeAny {
       break;
     }
     case "select": {
-      schema = z.enum(field.options.map((option) => option.value));
+      schema =
+        field.options.length > 0
+          ? z.enum(
+              field.options.map((option) => option.value) as [
+                string,
+                ...string[],
+              ],
+            )
+          : z.never();
       break;
     }
     case "group": {
@@ -145,7 +227,12 @@ function fieldToZod(field: Field): z.ZodTypeAny {
       break;
     }
     case "list": {
-      schema = z.array(z.object(buildFieldShape(field.itemFields)));
+      schema =
+        "itemFields" in field
+          ? z.array(z.object(buildFieldShape(field.itemFields)))
+          : z.array(
+              field.max === undefined ? z.string() : z.string().max(field.max),
+            );
       break;
     }
     case "seo": {
@@ -157,63 +244,73 @@ function fieldToZod(field: Field): z.ZodTypeAny {
     }
   }
 
-  if (field.required && field.type !== "date" && field.type !== "seo") {
-    if (field.type === "text" || field.type === "textarea" || field.type === "richtext" || field.type === "image" || field.type === "link") {
-      schema = (schema as z.ZodString).min(1);
-    }
-  }
-
-  if (!field.required) {
-    schema = schema.optional();
-  }
+  if (!field.required) schema = schema.optional();
 
   return schema;
 }
 
-function buildFieldShape(fields: Field[]) {
-  const shape: Record<string, z.ZodTypeAny> = {};
-  for (const field of fields) {
-    shape[field.name] = fieldToZod(field);
-  }
+function buildFieldShape(fields: readonly Field[]) {
+  const shape: Record<string, z.ZodType> = {};
+  for (const field of fields) shape[field.name] = fieldToZod(field);
   return shape;
 }
 
-export function buildValidator(schema: PageSchema) {
-  return z.object(buildFieldShape(schema.fields));
+export function buildValidator<const Schema extends PageSchema>(
+  schema: Schema,
+): z.ZodType<PageFields<Schema["fields"]>> {
+  return z.object(buildFieldShape(schema.fields)) as unknown as z.ZodType<
+    PageFields<Schema["fields"]>
+  >;
 }
 
 export type ImagePhoto = {
-  src: string;
+  src?: string;
   alt: string;
   label: string;
   tone: string;
   ratio?: string;
 };
 
-export type PageFields<Fields extends Field[]> = {
-  [Field in Fields[number] as Field["name"]]: Field extends TextField
-    ? string
-    : Field extends TextareaField
-    ? string
-    : Field extends RichtextField
-    ? string
-    : Field extends ImageField
-    ? ImagePhoto | null
-    : Field extends LinkField
-    ? string | null
-    : Field extends NumberField
-    ? number
-    : Field extends DateField
-    ? string
-    : Field extends ToggleField
-    ? boolean
-    : Field extends SelectField
-    ? string
-    : Field extends GroupField
-    ? PageFields<Field["fields"]>
-    : Field extends ListField
-    ? PageFields<Field["itemFields"]>[]
-    : Field extends SeoField
-    ? { title?: string; description?: string }
-    : never;
+type FieldValue<CurrentField extends Field> = CurrentField extends
+  TextField | TextareaField | RichtextField
+  ? string
+  : CurrentField extends ImageField
+    ? ImagePhoto
+    : CurrentField extends LinkField
+      ? { label: string; href: string }
+      : CurrentField extends NumberField
+        ? number
+        : CurrentField extends DateField
+          ? string
+          : CurrentField extends ToggleField
+            ? boolean
+            : CurrentField extends SelectField
+              ? CurrentField["options"][number]["value"]
+              : CurrentField extends GroupField
+                ? PageFields<CurrentField["fields"]>
+                : CurrentField extends TextListField
+                  ? string[]
+                  : CurrentField extends ObjectListField
+                    ? PageFields<CurrentField["itemFields"]>[]
+                    : CurrentField extends SeoField
+                      ? { title?: string; description?: string }
+                      : never;
+
+type RequiredFieldValues<Fields extends readonly Field[]> = {
+  [
+    Item in Fields[number] as Item extends { required: true }
+      ? Item["name"]
+      : never
+  ]: FieldValue<Item>;
 };
+
+type OptionalFieldValues<Fields extends readonly Field[]> = {
+  [
+    Item in Fields[number] as Item extends { required: true }
+      ? never
+      : Item["name"]
+  ]?: FieldValue<Item>;
+};
+
+export type PageFields<Fields extends readonly Field[]> =
+  RequiredFieldValues<Fields> & OptionalFieldValues<Fields>;

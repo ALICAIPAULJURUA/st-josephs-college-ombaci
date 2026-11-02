@@ -1,13 +1,16 @@
 import Link from "next/link";
 
+import { JsonLd, siteOrigin } from "@/components/seo/JsonLd";
+
 export type BreadcrumbItem = {
   label: string;
   href?: string;
 };
 
-export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
+export async function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
   if (items.length === 0) return null;
 
+  const origin = siteOrigin();
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -15,7 +18,7 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
       "@type": "ListItem",
       position: index + 1,
       name: item.label,
-      ...(item.href ? { item: item.href } : {}),
+      ...(item.href ? { item: new URL(item.href, origin).toString() } : {}),
     })),
   };
 
@@ -47,12 +50,7 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
           );
         })}
       </ol>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
-        }}
-      />
+      <JsonLd data={jsonLd} />
     </nav>
   );
 }

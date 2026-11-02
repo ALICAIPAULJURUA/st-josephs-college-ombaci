@@ -21,8 +21,53 @@ test("home shows the approved headline, numbers and admissions link", async ({
   await expect(numbers.getByText("O + A", { exact: true })).toBeVisible();
 
   await expect(
-    page.getByRole("link", { name: "How to apply" }),
+    page.locator("#apply").getByRole("link", { name: "How to apply" }),
   ).toHaveAttribute("href", "/apply");
+
+  const sciencePhoto = page
+    .getByRole("img", {
+      name: "Laboratory glassware with a test tube held above a bowl",
+    })
+    .first();
+  await expect(sciencePhoto).toBeVisible();
+  await expect
+    .poll(() =>
+      sciencePhoto.evaluate((image: HTMLImageElement) => image.naturalWidth),
+    )
+    .toBeGreaterThan(0);
+  await expect(page.getByText(/\[To be confirmed:|\[Placeholder:/)).toHaveCount(
+    0,
+  );
+});
+
+test("subject pages show labelled illustrative examples", async ({ page }) => {
+  await page.goto("/academics/o-level");
+  await expect(
+    page.getByRole("heading", {
+      name: "Illustrative O-level subject examples",
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/Mathematics, English, Biology, Chemistry/i, {
+      exact: false,
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/not confirmed college offerings/i),
+  ).toBeVisible();
+
+  await page.goto("/academics/a-level");
+  await expect(
+    page.getByRole("heading", {
+      name: "Illustrative A-level subject examples",
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/sample combination: Mathematics, Physics and Chemistry/i),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/not confirmed college offerings/i),
+  ).toBeVisible();
 });
 
 test("panels expand on hover and keyboard focus", async ({ page }) => {

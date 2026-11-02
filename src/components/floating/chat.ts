@@ -9,7 +9,7 @@ export type ChatMessage = {
 export const welcomeMessage: ChatMessage = {
   id: "welcome",
   role: "assistant",
-  text: "Hello, I can answer questions about admissions, boarding, fees and visiting the school. What would you like to know?",
+  text: "Hello, I can help with questions about the school. What would you like to know?",
 };
 
 export const suggestedQuestions = [
@@ -18,20 +18,16 @@ export const suggestedQuestions = [
   "When can I visit?",
 ] as const;
 
-export const stubReply =
-  "The live assistant is not connected yet. Please use the school contact page or WhatsApp for help.";
-
-export const stubReplyWithoutWhatsApp =
-  "The live assistant is not connected yet. Please use the school contact page for help.";
-
 export function isChatMessage(value: unknown): value is ChatMessage {
-  if (!value || typeof value !== "object") return false;
-
-  const message = value as Partial<ChatMessage>;
-
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
   return (
-    typeof message.id === "string" &&
-    (message.role === "assistant" || message.role === "user") &&
-    typeof message.text === "string"
+    "id" in value &&
+    typeof value.id === "string" &&
+    value.id.length <= 100 &&
+    "role" in value &&
+    (value.role === "assistant" || value.role === "user") &&
+    "text" in value &&
+    typeof value.text === "string" &&
+    value.text.length <= 5000
   );
 }

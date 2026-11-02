@@ -6,18 +6,25 @@ const envSchema = z.object({
     .default("development"),
   DATABASE_URL: z.string().min(1).optional(),
   DATABASE_AUTH_TOKEN: z.string().min(1).optional(),
-  SESSION_SECRET: z.string().min(1).optional(),
+  SESSION_SECRET: z.string().min(32).optional(),
+  STORAGE_DRIVER: z.enum(["local", "cloudinary"]).default("local"),
+  APPLICATION_PRIVATE_STORAGE_DIR: z.string().min(1).optional(),
+  SEED_ADMIN_EMAIL: z
+    .union([z.literal(""), z.email()])
+    .optional()
+    .transform((value) => (value === "" ? undefined : value)),
+  SEED_ADMIN_PASSWORD: z
+    .union([z.literal(""), z.string().min(12)])
+    .optional()
+    .transform((value) => (value === "" ? undefined : value)),
   NEXT_PUBLIC_SITE_URL: z.url().optional(),
   NEXT_PUBLIC_WHATSAPP_NUMBER: z.string().min(1).optional(),
-  ANTHROPIC_API_KEY: z.string().min(1).optional(),
-  ANTHROPIC_MODEL: z.string().min(1).optional(),
+  OPENROUTER_API_KEY: z.string().min(1).optional(),
+  OPEN_ROUTER_API_KEY: z.string().min(1).optional(),
+  OPENROUTER_MODEL: z.string().min(1).optional(),
   CLOUDINARY_CLOUD_NAME: z.string().min(1).optional(),
   CLOUDINARY_API_KEY: z.string().min(1).optional(),
   CLOUDINARY_API_SECRET: z.string().min(1).optional(),
-  R2_ACCOUNT_ID: z.string().min(1).optional(),
-  R2_ACCESS_KEY_ID: z.string().min(1).optional(),
-  R2_SECRET_ACCESS_KEY: z.string().min(1).optional(),
-  R2_BUCKET: z.string().min(1).optional(),
   TURNSTILE_SITE_KEY: z.string().min(1).optional(),
   TURNSTILE_SECRET_KEY: z.string().min(1).optional(),
   EMAIL_FROM: z.string().min(1).optional(),

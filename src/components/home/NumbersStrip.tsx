@@ -1,5 +1,5 @@
 import { StatCell } from "@/components/ui/StatCell";
-import { numbers as seedNumbers, type NumberSeed } from "@/content/defaults/home";
+import type { HomeData } from "@/lib/home";
 
 const cellBorders = [
   "border-b-[3px] border-r-[3px] min-[821px]:border-b-0",
@@ -9,15 +9,14 @@ const cellBorders = [
 ];
 
 export function NumbersStrip({
-  items = seedNumbers,
+  items,
+  label,
 }: {
-  items?: NumberSeed[];
+  items: HomeData["numbers"];
+  label: string;
 }) {
   return (
-    <section
-      aria-label="The college in numbers"
-      className="bg-yellow text-navy"
-    >
+    <section aria-label={label} className="bg-yellow text-navy">
       <div className="mx-auto max-w-[1320px] px-10 max-[821px]:px-5">
         <div className="grid grid-cols-2 min-[821px]:grid-cols-4">
           {items.map((item, index) => (

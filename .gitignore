@@ -14,11 +14,15 @@
 /coverage
 /playwright-report
 /test-results
+/.lighthouseci
 
 # local data
+/data/
 /ombaci-dev.db
 /ombaci-dev.db-*
 /public/media/
+/public/uploads/
+/public/tinymce/
 
 # next.js
 /.next/

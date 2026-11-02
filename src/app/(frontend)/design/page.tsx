@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 
+import { settingsDefaults } from "@/content/defaults/site";
 import { FloatingActions } from "@/components/floating/FloatingActions";
+import {
+  isChatConfigured,
+  isChatProviderConfigured,
+} from "@/lib/chat/config";
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
@@ -38,9 +43,10 @@ export default function DesignPage() {
         notice={{
           id: "design-preview",
           text: "Design route preview. This is not a published school notice.",
+          dismissLabel: "Dismiss",
         }}
       />
-      <Header />
+      <Header settings={settingsDefaults} />
       <main id="main">
         <Breadcrumbs
           items={[{ label: "Home", href: "/" }, { label: "Design" }]}
@@ -203,8 +209,13 @@ export default function DesignPage() {
           </div>
         </div>
       </main>
-      <Footer />
-      <FloatingActions />
+      <Footer settings={settingsDefaults} />
+      <FloatingActions
+        settings={settingsDefaults}
+        assistantAvailable={isChatProviderConfigured()}
+        assistantReady={isChatConfigured()}
+        turnstileSiteKey={process.env.TURNSTILE_SITE_KEY ?? ""}
+      />
     </>
   );
 }

@@ -1,66 +1,82 @@
+import { createHash } from "node:crypto";
+import { and, eq, isNull, lte, or } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 
 import { db } from "./client";
-import { items, pages, settings } from "./schema";
+import { items, pages, redirects, settings } from "./schema";
 
-export const getSettings = unstable_cache(
-  async (): Promise<Record<string, unknown>> => {
-    const rows = await db.select().from(settings);
-    const result: Record<string, unknown> = {};
-    for (const row of rows) {
-      try {
-        result[row.key] = JSON.parse(row.value as string);
-      } catch {
-        result[row.key] = row.value;
-      }
-    }
-    return result;
-  },
-  ["settings"],
-  { tags: ["settings"] },
-);
+const databaseCacheNamespace = createHash("sha256")
+  .update(process.env.DATABASE_URL || "file:./data/site.db")
+  .digest("hex")
+  .slice(0, 16);
 
-export const getPage = unstable_cache(
-  async (key: string) => {
-    const row = await db.select().from(pages).where(({ key: k }) => k.equals(key)).limit(1);
+function scopedCacheTag(tag: string) {
+  return `database:${databaseCacheNamespace}:${tag}`;
+}
 
-    if (!row[0]) return null;
+export const cacheTags = {
+  settings: scopedCacheTag("settings"),
+  pages: scopedCacheTag("pages"),
+  page: (key: string) => scopedCacheTag(`page:${key}`),
+  items: scopedCacheTag("items"),
+  collection: (collection: string) =>
+    scopedCacheTag(`collection:${collection}`),
+  redirects: scopedCacheTag("redirects"),
+};
 
-    let fields: unknown = {};
-    try {
-      fields = JSON.parse(row[0].fields as string);
-    } catch {
-      fields = row[0].fields;
-    }
+export function getSettings() {
+  return unstable_cache(
+    async (): Promise<Record<string, unknown>> => {
+      const rows = await db.select().from(settings);
+      return Object.fromEntries(rows.map((row) => [row.key, row.value]));
+    },
+    ["settings", databaseCacheNamespace],
+    { revalidate: 60, tags: [cacheTags.settings] },
+  )();
+}
 
-    return {
-      key: row[0].key,
-      status: row[0].status,
-      updatedBy: row[0].updatedBy ?? undefined,
-      updatedAt: row[0].updatedAt,
-      fields,
-    };
-  },
-  ["page"],
-  { tags: ["page"] },
-);
+export function getPage(key: string) {
+  return unstable_cache(
+    async () => {
+      const rows = await db
+        .select()
+        .from(pages)
+        .where(and(eq(pages.key, key), eq(pages.status, "published")))
+        .limit(1);
+      const row = rows[0];
 
-export const getItems = unstable_cache(
-  async (collection: string) => {
-    const rows = await db
-      .select()
-      .from(items)
-      .where(({ collection: c }) => c.equals(collection))
-      .orderBy(items.sortOrder);
+      if (!row) return null;
 
-    return rows.map((row) => {
-      let fields: unknown = {};
-      try {
-        fields = JSON.parse(row.fields as string);
-      } catch {
-        fields = row.fields;
-      }
       return {
+        key: row.key,
+        status: row.status,
+        updatedBy: row.updatedBy ?? undefined,
+        updatedAt: row.updatedAt,
+        fields: row.fields,
+      };
+    },
+    ["page", key, databaseCacheNamespace],
+    { revalidate: 60, tags: [cacheTags.pages, cacheTags.page(key)] },
+  )();
+}
+
+export function getItems(collection: string) {
+  return unstable_cache(
+    async () => {
+      const now = Date.now();
+      const rows = await db
+        .select()
+        .from(items)
+        .where(
+          and(
+            eq(items.collection, collection),
+            eq(items.status, "published"),
+            or(isNull(items.publishAt), lte(items.publishAt, now)),
+          ),
+        )
+        .orderBy(items.sortOrder);
+
+      return rows.map((row) => ({
         id: row.id,
         collection: row.collection,
         slug: row.slug,
@@ -68,10 +84,28 @@ export const getItems = unstable_cache(
         sortOrder: row.sortOrder,
         publishAt: row.publishAt,
         updatedAt: row.updatedAt,
-        fields,
-      };
-    });
-  },
-  ["items"],
-  { tags: ["collection"] },
-);
+        fields: row.fields,
+      }));
+    },
+    ["items", collection, databaseCacheNamespace],
+    {
+      revalidate: 60,
+      tags: [cacheTags.items, cacheTags.collection(collection)],
+    },
+  )();
+}
+
+export function getRedirect(path: string) {
+  return unstable_cache(
+    async () => {
+      const rows = await db
+        .select()
+        .from(redirects)
+        .where(eq(redirects.source, path))
+        .limit(1);
+      return rows[0]?.destination ?? null;
+    },
+    ["redirect", path, databaseCacheNamespace],
+    { revalidate: 60, tags: [cacheTags.redirects] },
+  )();
+}

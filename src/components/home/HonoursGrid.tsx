@@ -1,23 +1,29 @@
 import { Card } from "@/components/ui/Card";
-import { Placeholder } from "@/components/ui/Placeholder";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { SitePhoto } from "@/components/ui/SitePhoto";
-import { honours as seedHonours, type HonourSeed } from "@/content/defaults/home";
+import type { HomeData } from "@/lib/home";
 
 export function HonoursGrid({
-  items = seedHonours,
+  items,
+  label,
+  heading,
+  intro,
 }: {
-  items?: HonourSeed[];
+  items: HomeData["honours"];
+  label: string;
+  heading: string;
+  intro: string;
 }) {
   return (
     <section className="bg-navy py-24 text-white max-[821px]:py-16">
       <div className="mx-auto max-w-[1320px] px-10 max-[821px]:px-5">
         <SectionLabel tone="yellow" className="mb-3.5">
-          Honours
+          {label}
         </SectionLabel>
-        <h2 className="text-[clamp(46px,6vw,88px)] leading-[0.9]">
-          Recent results
-        </h2>
+        <h2 className="text-[clamp(46px,6vw,88px)] leading-[0.9]">{heading}</h2>
+        <p className="mt-5 max-w-[760px] text-[17px] leading-[1.5] text-soft">
+          {intro}
+        </p>
 
         <div className="mt-10 grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-4">
           {items.map((honour, index) => (
@@ -32,14 +38,12 @@ export function HonoursGrid({
               />
               <div className="px-5 pb-[22px] pt-[18px]">
                 <b className="block font-display text-[60px] font-black leading-[0.9] text-red">
-                  {honour.year ?? <Placeholder>Year</Placeholder>}
+                  {honour.year ?? ""}
                 </b>
                 <strong className="mt-1.5 block text-[20px]">
-                  {honour.title ?? <Placeholder>Achievement</Placeholder>}
+                  {honour.title ?? ""}
                 </strong>
-                <span>
-                  {honour.line ?? <Placeholder>One line</Placeholder>}
-                </span>
+                <span>{honour.line ?? ""}</span>
               </div>
             </Card>
           ))}

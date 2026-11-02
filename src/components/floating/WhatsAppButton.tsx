@@ -15,9 +15,11 @@ function WhatsAppIcon() {
 
 export function WhatsAppButton({
   href,
+  label,
   className = "",
 }: {
   href: string;
+  label: string;
   className?: string;
 }) {
   return (
@@ -35,7 +37,7 @@ export function WhatsAppButton({
       data-analytics="whatsapp_click"
     >
       <WhatsAppIcon />
-      <span className="max-[641px]:hidden">Chat on WhatsApp</span>
+      <span className="max-[641px]:sr-only">{label}</span>
     </a>
   );
 }

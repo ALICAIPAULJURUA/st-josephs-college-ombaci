@@ -77,7 +77,7 @@ One Next.js application serves the public site, the admin area and the API route
 | Framework | Next.js (App Router), React, TypeScript strict, pnpm | Server Components by default. **Do not enable Cache Components** (`cacheComponents`); use normal static generation with `revalidate` and `revalidateTag` |
 | Styling | Tailwind CSS v4 plus CSS-variable tokens | Tokens in `src/styles/tokens.css` |
 | Fonts | `next/font/google`: Big Shoulders Display (600, 800, 900), Barlow (400 to 700) | Latin subset |
-| Database | SQLite-compatible libSQL through Drizzle ORM. Local file in development (`file:./data/site.db`), Turso in production | One dialect everywhere, so no surprises between dev and live |
+| Database | SQLite through Drizzle ORM for development. Local SQLite file (`file:./data/site.db`) | Production database provider and migration plan are not decided; the owner will guide this choice. Do not assume Turso or another production provider. |
 | Auth | Email and password, argon2id hashing, signed httpOnly session cookie (iron-session or Auth.js credentials), login rate limit | No social login |
 | Rich text | TinyMCE (`@tinymce/tinymce-react`, self-hosted from the `tinymce` package) | Section 6 |
 | Media storage | A storage adapter with two implementations: local disk (`public/uploads`) for development, Cloudinary or Cloudflare R2 for production | Hosts with read-only disks (Vercel) cannot keep uploads on disk |
@@ -85,7 +85,7 @@ One Next.js application serves the public site, the admin area and the API route
 | Email | Resend or the school's SMTP via Nodemailer | Application and enquiry notifications |
 | Chatbot | Claude API from a server route | Section 12 |
 | Analytics | Plausible or Umami | No cookie banner |
-| Hosting | Vercel plus Turso plus Cloudinary (default) | Confirm before Phase 1 |
+| Hosting | Not decided | Production hosting, database provider and image storage require owner guidance |
 | Quality | ESLint, Prettier, Vitest, Playwright, axe, Lighthouse CI, GitHub Actions | |
 
 **Decisions to confirm** (record the answers in `DECISIONS.md`): D1 hosting and data location; D2 production domain; D3 sender address for email; D4 TinyMCE licence route (self-hosted GPL, or a TinyMCE Cloud key if the school prefers).
