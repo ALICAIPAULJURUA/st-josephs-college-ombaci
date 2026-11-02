@@ -50,16 +50,53 @@ test("administrator can sign in and open staff accounts", async ({ page }) => {
   await expect(page.getByText(email)).toBeVisible();
 });
 
+test("dashboard shortcuts and searchable Help are available", async ({
+  page,
+}) => {
+  await signIn(page, "admin");
+  await expect(page.getByRole("link", { name: "Dashboard" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Help" })).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: /Write a news article/ }),
+  ).toHaveAttribute("href", "/admin/news/new");
+  await expect(
+    page.getByRole("link", { name: /Add a notice/ }),
+  ).toHaveAttribute("href", "/admin/notices/new");
+  await expect(
+    page.getByRole("link", { name: /Upload photos/ }),
+  ).toHaveAttribute("href", "/admin/media");
+
+  await page.getByRole("link", { name: "Help" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Help with the school website" }),
+  ).toBeVisible();
+  await page.getByLabel("Search help").fill("backup");
+  await page.getByRole("button", { name: "Search" }).click();
+  await expect(page).toHaveURL(/\/admin\/help\?q=backup$/);
+  await expect(
+    page.getByRole("link", { name: "Download a backup of all content" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Download a content backup" }),
+  ).toBeVisible();
+});
+
 test("admin pages fit the reference widths without horizontal scrolling", async ({
   page,
 }) => {
+  test.setTimeout(120_000);
   await signIn(page, "admin");
   await expect(page).toHaveURL(/\/admin$/);
   await mkdir("test-results/screenshots", { recursive: true });
 
   for (const width of [1440, 1024, 820, 640, 375]) {
     await page.setViewportSize({ width, height: 900 });
-    for (const route of ["/admin", "/admin/media", "/admin/users"]) {
+    for (const route of [
+      "/admin",
+      "/admin/help",
+      "/admin/media",
+      "/admin/users",
+    ]) {
       await page.goto(route);
       await expect(page.locator("main")).toBeVisible();
       await expect(

@@ -32,8 +32,10 @@ export type ContentItem = {
 export { getRedirect };
 export { contentItemPath } from "@/lib/content-path";
 
+const siteSettingsValidator = buildValidator(settingsSchema);
+
 export async function getSiteSettings(): Promise<SiteSettings> {
-  const result = buildValidator(settingsSchema).safeParse({
+  const result = siteSettingsValidator.safeParse({
     ...settingsDefaults,
     ...(await getSettings()),
   });
@@ -90,8 +92,9 @@ export async function getContentItems(
   if (!schema) throw new Error(`The ${collection} list is not configured.`);
 
   const items = await getPublishedItems(collection);
+  const validator = buildValidator(schema);
   return items.map((item) => {
-    const validation = buildValidator(schema).safeParse(item.fields);
+    const validation = validator.safeParse(item.fields);
     if (!validation.success) {
       const issues = validation.error.issues
         .map((issue) => `${issue.path.join(".")}: ${issue.message}`)

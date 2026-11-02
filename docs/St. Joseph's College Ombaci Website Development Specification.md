@@ -18,7 +18,7 @@ This is the single source of truth for building the St. Joseph's College, Ombaci
 **Standing rules** (copy into `AGENTS.md`):
 
 ```markdown
-1. Read docs/website-spec.md before every task. Work on one phase at a time.
+1. Read `docs/St. Joseph's College Ombaci Website Development Specification.md` before every task. Work on one phase at a time.
 2. Match /reference/f-panels/index.html. Use only the tokens in spec section 9. No gradients, no emojis, square corners.
 3. Every piece of public text, every image and every list is editable from /admin. Never hard-code content in components. Components read from the database; defaults live in src/content/defaults/ and are loaded by `pnpm seed`.
 4. Write real, original copy in plain English (spec section 8). Use only facts from spec section 2. Where a fact is unknown (fees, dates, names, emails), write the visible marker [To be confirmed: <what>] instead of inventing it.
@@ -94,7 +94,7 @@ One Next.js application serves the public site, the admin area and the API route
 
 ```text
 /reference/f-panels/            approved design (static HTML)
-/docs/website-spec.md           this document
+/docs/St. Joseph's College Ombaci Website Development Specification.md   this document
 /docs/ADMIN-GUIDE.md            plain-English guide for school staff (written by the agent, Phase 9)
 /docs/IMAGE-CREDITS.md          source, author and licence of every sample image
 /src
@@ -426,7 +426,7 @@ Work one phase at a time, one branch each, and review before moving on. **Starti
 **Phase A. Remove Payload and fix the build**
 
 ```
-Read docs/website-spec.md sections 1 to 4. The project currently embeds Payload CMS; we are replacing it with a small custom admin. First commit the current state on a branch. Then: (1) remove Payload packages, src/app/(payload), src/collections, withPayload in next.config and anything that imports payload; (2) make sure Cache Components (cacheComponents, experimental.dynamicIO, experimental.ppr) is NOT enabled; (3) keep all UI components and styles; (4) replace data access in src/lib/home.ts and content.ts with temporary reads from src/content/defaults so the site still renders; (5) run pnpm install, pnpm lint, pnpm typecheck, pnpm build. List what you removed and anything you were unsure about. Do not build the admin yet.
+Read this document's sections 1 to 4. The project currently embeds Payload CMS; we are replacing it with a small custom admin. First commit the current state on a branch. Then: (1) remove Payload packages, src/app/(payload), src/collections, withPayload in next.config and anything that imports payload; (2) make sure Cache Components (cacheComponents, experimental.dynamicIO, experimental.ppr) is NOT enabled; (3) keep all UI components and styles; (4) replace data access in src/lib/home.ts and content.ts with temporary reads from src/content/defaults so the site still renders; (5) run pnpm install, pnpm lint, pnpm typecheck, pnpm build. List what you removed and anything you were unsure about. Do not build the admin yet.
 ```
 
 **Phase B. Database, schema registry and seed**

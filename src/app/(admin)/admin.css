@@ -198,6 +198,18 @@ a.admin-nav-link:hover,
   gap: 9px;
 }
 
+.admin-attention-list li > a {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.admin-attention-list li > a:hover span {
+  text-decoration: underline;
+}
+
 .admin-attention-list strong {
   font-size: 26px;
 }
@@ -243,6 +255,26 @@ a.admin-nav-link:hover,
 
 .admin-section {
   margin-top: 34px;
+}
+
+.admin-help-topic {
+  border-top: 2px solid var(--navy);
+  padding-top: 16px;
+}
+
+.admin-help-topic ol {
+  margin: 14px 0;
+  padding-left: 24px;
+}
+
+.admin-help-topic li + li {
+  margin-top: 8px;
+}
+
+.admin-help-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .admin-shortcuts {
@@ -473,7 +505,10 @@ a.admin-shortcut:hover {
 
 .admin-user-row {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(130px, 0.7fr) minmax(190px, 1fr);
+  grid-template-columns: minmax(0, 1.2fr) minmax(130px, 0.7fr) minmax(
+      190px,
+      1fr
+    );
   align-items: start;
   gap: 14px;
   border-bottom: 1px solid var(--line);

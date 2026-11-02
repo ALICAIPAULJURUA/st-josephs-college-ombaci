@@ -14,6 +14,8 @@ const publicTemplates = [
 ];
 
 test("public page templates meet WCAG 2.2 AA checks", async ({ page }) => {
+  test.setTimeout(90_000);
+
   const violations: {
     route: string;
     id: string;

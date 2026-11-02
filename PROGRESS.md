@@ -602,7 +602,7 @@ Status: complete.
 
 ## Phase I: OMBACIAN Assistant
 
-Status: implementation and live model evaluation complete. Waiting for approval before Phase J.
+Status: implementation and live model evaluation complete.
 
 ### Built
 
@@ -643,4 +643,70 @@ Status: implementation and live model evaluation complete. Waiting for approval 
 
 ### Next
 
-Do not start Phase J until approved.
+Phase J is approved and in progress; performance budgets remain unresolved.
+
+## Project-wide phase review — 2026-11-02
+
+- Reviewed the completed phase records against the Phase A–K prompts and the acceptance checklist. Phases 0–3 and A–I have their implementation and verification recorded. The old Payload-based Phase 4 and pending Phase 5 entries above are historical; Phase A supersedes them.
+- No unfinished Phase A–I code task was found that could be completed without school or production decisions. Remaining dependencies include production hosting/database/storage, the production domain and email sender, confirmed school details and images, and legal approval of privacy and admissions wording.
+- Corrected the stale specification path in `AGENTS.md` and in the specification's own instructions. The canonical file is `docs/St. Joseph's College Ombaci Website Development Specification.md`.
+- Phase D's editor now has rich-text fields in the later collection schemas; this resolves its earlier note that TinyMCE could not yet be exercised through content.
+- Configuration presence was checked without displaying secret values: local `SESSION_SECRET`, `OPEN_ROUTER_API_KEY`, and `NEXT_PUBLIC_SITE_URL` are set; Turnstile and email credentials and a Plausible domain are not. Live chat/form verification therefore still needs Turnstile configuration.
+- Phase K remains unstarted. It depends on finishing Phase J and owner-supplied launch decisions and approvals.
+
+## Phase J: SEO, performance, accessibility and security
+
+Status: incomplete. SEO, accessibility and security checks pass; performance budgets do not.
+
+### Built
+
+- Route metadata with canonical, Open Graph and Twitter fields; escaped, nonce-bearing JSON-LD; generated database-aware sitemap and robots files; and database-backed redirects for changed content addresses.
+- Nonce-based Content Security Policy, production security headers, admin-only content backup download, local SQLite snapshot/restore script and instructions, production dependency audit, Lighthouse CI and axe browser coverage.
+- Reused parsed page/settings validators and collection validators to avoid rebuilding Zod schemas for every request or list item.
+- Split application, contact, and detail-page sharing controls into route-specific client bundles so their code is not loaded on unrelated content pages. Deferred forms display an accessible loading message until their event handlers are ready, preventing input from being lost before hydration.
+- Kept the first-priority `next/image` behavior after testing explicit image preloading; the preload experiment did not improve the Lighthouse results.
+- Corrected development-only CSP styling for Next.js tooling without relaxing the production `style-src-elem` policy.
+- Made the multi-route accessibility scan wait for document parsing and gave it enough time for seven templates. Added a deterministic Turnstile verification stub to the isolated E2E server so admissions tests do not depend on Cloudflare availability.
+- Fixed the stale canonical specification path in `AGENTS.md` and the specification.
+
+### Differences from the reference and specification
+
+- The owner selected nonce-based CSP. Next.js consequently renders public routes on demand rather than statically generating their HTML; published database content remains cached and revalidated.
+- The owner selected OpenRouter for the assistant in Phase I, replacing the Anthropic provider described in the original specification.
+
+### Open questions and blockers
+
+- Lighthouse still misses the required performance score on `/`, `/news` and `/contact`, and the 2.5-second LCP budget on every measured route, including `/admin/login`. The three-run traces show long LCP render delays (about 2.6–3.8 seconds on public routes); the exact cause remains inconsistent between the home panel image and page text. Do not lower or remove the budgets to claim completion.
+- Production database/provider and hosting are owner decisions. Production backup scheduling and restore testing cannot be configured until that deployment target is chosen.
+- Production domain, analytics domain, email sender, and approved school content/legal wording still require owner or school input.
+- A non-fatal Next.js image-dimension warning for the crest remains in browser test output.
+
+### Verification
+
+- `pnpm lint`: pass.
+- `pnpm typecheck`: pass.
+- `pnpm test`: pass, 13 files and 36 tests.
+- `pnpm build`: pass; Next.js 16.4.3 compiled all public, admin and API routes. Public pages render dynamically to support the selected nonce CSP.
+- `pnpm test:e2e`: pass, 57 tests, including application/contact submissions, deferred form hydration, seven public template/mobile axe checks, admin axe, reduced motion, SEO/security, publishing, and responsive checks.
+- `pnpm audit --prod`: pass; no known vulnerabilities.
+- `pnpm check:content`: pass; 10 sample photos, 0 `[To be confirmed]` markers and 0 unfilled photo slots.
+- Responsive browser tests: pass for 1440, 1024, 820, 640 and 375 px with no horizontal overflow.
+- Lighthouse was rerun against the production build three times per route after route-specific client-code splitting. The latest medians are:
+
+| Route | Median performance | Median LCP | Median accessibility | Median best practices | Median SEO |
+|---|---:|---:|---:|---:|---:|
+| `/` | 0.84 | 3.96 s | 1.00 | 1.00 | 1.00 |
+| `/about` | 0.90 | 3.25 s | 1.00 | 1.00 | 1.00 |
+| `/news` | 0.86 | 3.15 s | 1.00 | 1.00 | 1.00 |
+| `/contact` | 0.67 | 4.17 s | 1.00 | 0.96 | 1.00 |
+| `/admin/login` | 0.83 | 2.89 s | 1.00 | 0.96 | 0.54 |
+
+- Public CLS was at most 0.001 and page transfer remained under 465 KB. Home JavaScript transfer was about 161 KB (under the 170 KB budget). Admin SEO is intentionally excluded from the Lighthouse assertion matrix because the admin is `noindex`.
+- Route-specific splitting reduced JavaScript transfer on ordinary content pages by about 36 KB; the homepage remains within its configured JavaScript budget. Contact loads its form bundle by design.
+- Tested preloading only Barlow weight 400 and explicit Next.js image preloading; neither produced a reliable improvement, and both experiments were reverted. Font strategy, image priority behavior, and Lighthouse budgets remain unchanged.
+- Tested five-minute fallback cache lifetimes for settings, pages and redirects. Publishing invalidation passed focused browser tests, but Lighthouse showed no consistent improvement; the cache lifetimes were restored to 60 seconds.
+- Deferred application/contact forms initially allowed input before their client handlers were ready; they now render an accessible loading status until the form bundle is available. The focused admissions and detail-sharing tests passed, followed by the full 57-test E2E suite.
+
+### Next
+
+Continue Phase J performance investigation and optimization, then rerun Lighthouse CI. Phase K remains unstarted; do not start it until Phase J's applicable budgets pass or the owner explicitly revises the requirements.

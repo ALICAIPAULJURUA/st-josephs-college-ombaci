@@ -4,6 +4,8 @@ import { getPage } from "@/db/queries";
 
 export type HomeData = PageFields<typeof homePageSchema.fields>;
 
+const homePageValidator = buildValidator(homePageSchema);
+
 export async function getHomeData(): Promise<HomeData> {
   const page = await getPage(homePageSchema.key);
   if (!page) {
@@ -12,7 +14,7 @@ export async function getHomeData(): Promise<HomeData> {
     );
   }
 
-  const result = buildValidator(homePageSchema).safeParse(page.fields);
+  const result = homePageValidator.safeParse(page.fields);
   if (!result.success) {
     const issues = result.error.issues
       .map((issue) => `${issue.path.join(".")}: ${issue.message}`)

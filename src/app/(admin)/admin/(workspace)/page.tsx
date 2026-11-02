@@ -2,9 +2,77 @@ import Link from "next/link";
 import { and, count, desc, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 
+import { getCollectionSchema } from "@/content/schemas/collections";
+import { getPageSchema } from "@/content/schemas/registry";
 import { db } from "@/db/client";
-import { chatLog, media } from "@/db/schema";
+import {
+  applications,
+  chatLog,
+  enquiries,
+  items,
+  media,
+  pages,
+  settings,
+} from "@/db/schema";
 import { getAuthenticatedAdmin } from "@/lib/admin/auth";
+
+type AttentionMarker = {
+  id: string;
+  location: string;
+  text: string;
+  href: string;
+};
+
+type RecentEdit = {
+  id: string;
+  title: string;
+  href: string;
+  updatedAt: number;
+};
+
+function findAttentionMarkers(
+  value: unknown,
+  location: string,
+  href: string,
+  results: AttentionMarker[],
+) {
+  if (typeof value === "string") {
+    const pattern =
+      /\[To be confirmed:[^\]]+\]|photo coming soon|to be confirmed|being confirmed|when they have been confirmed|replace before publishing|replace with approved photos|^\s*draft\b|old boy name|class, profession/gi;
+    for (const match of value.matchAll(pattern)) {
+      results.push({
+        id: `${location}:${match.index ?? results.length}`,
+        location,
+        text: match[0],
+        href,
+      });
+    }
+    return;
+  }
+
+  if (Array.isArray(value)) {
+    value.forEach((entry, index) =>
+      findAttentionMarkers(entry, `${location}[${index}]`, href, results),
+    );
+    return;
+  }
+
+  if (value && typeof value === "object") {
+    for (const [key, entry] of Object.entries(value)) {
+      findAttentionMarkers(entry, `${location}.${key}`, href, results);
+    }
+  }
+}
+
+function displayTitle(fields: Record<string, unknown>, fallback: string) {
+  for (const key of ["title", "name", "question", "year"]) {
+    const value = fields[key];
+    if (typeof value === "string" || typeof value === "number") {
+      return String(value);
+    }
+  }
+  return fallback;
+}
 
 export default async function AdminDashboardPage() {
   const user = await getAuthenticatedAdmin();
@@ -17,6 +85,11 @@ export default async function AdminDashboardPage() {
     consentNeeded,
     latestUploads,
     unansweredQuestions,
+    pageRows,
+    itemRows,
+    settingsRows,
+    newApplications,
+    enquiryCount,
   ] = await Promise.all([
     db.select({ total: count() }).from(media).where(eq(media.isSample, true)),
     db
@@ -49,9 +122,70 @@ export default async function AdminDashboardPage() {
       .where(eq(chatLog.answered, false))
       .orderBy(desc(chatLog.createdAt))
       .limit(10),
+    db.select().from(pages),
+    db.select().from(items),
+    db.select().from(settings),
+    db
+      .select({ total: count() })
+      .from(applications)
+      .where(eq(applications.status, "new")),
+    db.select({ total: count() }).from(enquiries),
   ]);
   const sampleCount = samplePhotos[0]?.total ?? 0;
   const consentCount = consentNeeded[0]?.total ?? 0;
+  const applicationCount = newApplications[0]?.total ?? 0;
+  const enquiriesToReview = enquiryCount[0]?.total ?? 0;
+
+  const attentionMarkers: AttentionMarker[] = [];
+  for (const page of pageRows) {
+    const label = getPageSchema(page.key)?.label ?? page.key;
+    findAttentionMarkers(
+      page.fields,
+      label,
+      `/admin/pages/${page.key}`,
+      attentionMarkers,
+    );
+  }
+  for (const item of itemRows) {
+    const schema = getCollectionSchema(item.collection);
+    findAttentionMarkers(
+      item.fields,
+      `${schema?.label ?? item.collection}: ${displayTitle(item.fields, item.slug)}`,
+      `/admin/${item.collection}/${encodeURIComponent(item.id)}`,
+      attentionMarkers,
+    );
+  }
+  for (const setting of settingsRows) {
+    findAttentionMarkers(
+      setting.value,
+      `Settings: ${setting.key}`,
+      "/admin/settings",
+      attentionMarkers,
+    );
+  }
+
+  const recentEdits: RecentEdit[] = [
+    ...pageRows.map((page) => {
+      const schema = getPageSchema(page.key);
+      return {
+        id: `page:${page.key}`,
+        title: schema?.label ?? page.key,
+        href: `/admin/pages/${page.key}`,
+        updatedAt: page.draftUpdatedAt ?? page.updatedAt,
+      };
+    }),
+    ...itemRows.map((item) => {
+      const schema = getCollectionSchema(item.collection);
+      return {
+        id: `item:${item.id}`,
+        title: `${schema?.label ?? item.collection}: ${displayTitle(item.fields, item.slug)}`,
+        href: `/admin/${item.collection}/${encodeURIComponent(item.id)}`,
+        updatedAt: item.updatedAt,
+      };
+    }),
+  ]
+    .sort((left, right) => right.updatedAt - left.updatedAt)
+    .slice(0, 5);
 
   return (
     <div className="admin-page">
@@ -71,19 +205,62 @@ export default async function AdminDashboardPage() {
         </div>
         <ul className="admin-attention-list">
           <li>
-            <strong>{sampleCount}</strong>
-            <span>
-              sample {sampleCount === 1 ? "photo" : "photos"} to replace
-            </span>
+            <Link href="/admin/media">
+              <strong>{sampleCount}</strong>
+              <span>
+                sample {sampleCount === 1 ? "photo" : "photos"} to replace
+              </span>
+            </Link>
           </li>
           <li>
-            <strong>{consentCount}</strong>
-            <span>
-              {consentCount === 1 ? "photo needs" : "photos need"} consent
-              before it can be published
-            </span>
+            <Link href="/admin/media">
+              <strong>{consentCount}</strong>
+              <span>
+                {consentCount === 1 ? "photo needs" : "photos need"} consent
+                before it can be published
+              </span>
+            </Link>
+          </li>
+          <li>
+            <Link href="/admin/pages">
+              <strong>{attentionMarkers.length}</strong>
+              <span>
+                {attentionMarkers.length === 1
+                  ? "content detail"
+                  : "content details"}{" "}
+                to confirm
+              </span>
+            </Link>
+          </li>
+          <li>
+            <Link href="/admin/applications">
+              <strong>{applicationCount}</strong>
+              <span>
+                new {applicationCount === 1 ? "application" : "applications"}
+              </span>
+            </Link>
+          </li>
+          <li>
+            <Link href="/admin/enquiries">
+              <strong>{enquiriesToReview}</strong>
+              <span>
+                enquiry {enquiriesToReview === 1 ? "message" : "messages"}{" "}
+                received
+              </span>
+            </Link>
           </li>
         </ul>
+        {attentionMarkers.length > 0 ? (
+          <ul className="admin-sample-list">
+            {attentionMarkers.slice(0, 10).map((marker) => (
+              <li key={marker.id}>
+                <Link href={marker.href}>
+                  {marker.location}: {marker.text}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : null}
         {samplePhotoRows.length > 0 ? (
           <>
             <ul className="admin-sample-list">
@@ -139,20 +316,14 @@ export default async function AdminDashboardPage() {
             <strong>Upload photos</strong>
             <span>Add a photo or document to the library.</span>
           </Link>
-          <span
-            aria-disabled="true"
-            className="admin-shortcut admin-shortcut-disabled"
-          >
+          <Link className="admin-shortcut" href="/admin/news/new">
             <strong>Write a news article</strong>
-            <span>Available in a later phase.</span>
-          </span>
-          <span
-            aria-disabled="true"
-            className="admin-shortcut admin-shortcut-disabled"
-          >
+            <span>Write a story and publish it on the website.</span>
+          </Link>
+          <Link className="admin-shortcut" href="/admin/notices/new">
             <strong>Add a notice</strong>
-            <span>Available in a later phase.</span>
-          </span>
+            <span>Share an update or pin it to the notice bar.</span>
+          </Link>
         </div>
       </section>
 
@@ -207,6 +378,31 @@ export default async function AdminDashboardPage() {
               </li>
             ))}
           </ul>
+        )}
+      </section>
+
+      <section aria-labelledby="recent-edits-heading" className="admin-section">
+        <div className="admin-section-heading">
+          <h2 id="recent-edits-heading">Recently edited</h2>
+        </div>
+        {recentEdits.length > 0 ? (
+          <ul className="admin-recent-list">
+            {recentEdits.map((edit) => (
+              <li key={edit.id}>
+                <Link href={edit.href}>{edit.title}</Link>
+                <time dateTime={new Date(edit.updatedAt).toISOString()}>
+                  {new Intl.DateTimeFormat("en", {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  }).format(edit.updatedAt)}
+                </time>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="admin-panel admin-empty">
+            <p>Saved page and list changes will appear here.</p>
+          </div>
         )}
       </section>
     </div>

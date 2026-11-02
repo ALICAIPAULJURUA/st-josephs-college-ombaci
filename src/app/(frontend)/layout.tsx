@@ -24,6 +24,7 @@ const barlow = Barlow({
   weight: ["400", "500", "600", "700"],
   variable: "--font-barlow",
   display: "swap",
+  preload: false,
 });
 
 export async function generateMetadata(): Promise<Metadata> {

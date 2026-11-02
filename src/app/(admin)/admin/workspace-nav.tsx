@@ -14,7 +14,12 @@ type NavigationItem = {
 };
 
 const navigation: NavigationItem[] = [
-  { label: "Dashboard", href: "/admin", roles: ["admin", "editor"] },
+  {
+    label: "Dashboard",
+    href: "/admin",
+    roles: ["admin", "editor"],
+    available: true,
+  },
   {
     label: "Pages",
     href: "/admin/pages",
@@ -130,7 +135,12 @@ const navigation: NavigationItem[] = [
     available: true,
   },
   { label: "Users", href: "/admin/users", roles: ["admin"], available: true },
-  { label: "Help", href: "/admin/help", roles: ["admin", "editor"] },
+  {
+    label: "Help",
+    href: "/admin/help",
+    roles: ["admin", "editor"],
+    available: true,
+  },
 ];
 
 function NavigationLink({

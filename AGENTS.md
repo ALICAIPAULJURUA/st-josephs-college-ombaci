@@ -1,6 +1,6 @@
 # AGENTS.md: St. Joseph's College Ombaci website
 
-You are building the official website for St. Joseph's College Ombaci (West Nile, Uganda). The full specification is `docs/website-spec.md` (version 2). It is the single source of truth. The approved visual design is in `reference/f-panels/` (design "F Panels").
+You are building the official website for St. Joseph's College Ombaci (West Nile, Uganda). The full specification is `docs/St. Joseph's College Ombaci Website Development Specification.md` (version 2). It is the single source of truth. The approved visual design is in `reference/f-panels/` (design "F Panels").
 
 ## What this project is
 
@@ -8,7 +8,7 @@ A normal Next.js website whose text, images and lists live in a database and are
 
 ## First, every session
 
-1. Read `docs/website-spec.md` in full before writing code. When resumed, re-read the sections for the current phase (Section 15).
+1. Read `docs/St. Joseph's College Ombaci Website Development Specification.md` in full before writing code. When resumed, re-read the sections for the current phase (Section 15).
 2. Look at `reference/f-panels/` and match it. Do not redesign.
 3. Read `PROGRESS.md` to see which phase is done and what is next. Create it if missing.
 
