@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { and, count, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, gte, sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
 
 import { getCollectionSchema } from "@/content/schemas/collections";
@@ -89,7 +89,10 @@ export default async function AdminDashboardPage() {
     itemRows,
     settingsRows,
     newApplications,
-    enquiryCount,
+    enquiriesThisWeek,
+    assistantQuestionsThisWeek,
+    publishedPages,
+    publishedItems,
   ] = await Promise.all([
     db.select({ total: count() }).from(media).where(eq(media.isSample, true)),
     db
@@ -129,12 +132,35 @@ export default async function AdminDashboardPage() {
       .select({ total: count() })
       .from(applications)
       .where(eq(applications.status, "new")),
-    db.select({ total: count() }).from(enquiries),
+    db
+      .select({ total: count() })
+      .from(enquiries)
+      .where(
+        gte(enquiries.createdAt, sql<number>`(unixepoch() - 604800) * 1000`),
+      ),
+    db
+      .select({ total: count() })
+      .from(chatLog)
+      .where(
+        gte(chatLog.createdAt, sql<number>`(unixepoch() - 604800) * 1000`),
+      ),
+    db
+      .select({ total: count() })
+      .from(pages)
+      .where(eq(pages.status, "published")),
+    db
+      .select({ total: count() })
+      .from(items)
+      .where(eq(items.status, "published")),
   ]);
   const sampleCount = samplePhotos[0]?.total ?? 0;
   const consentCount = consentNeeded[0]?.total ?? 0;
   const applicationCount = newApplications[0]?.total ?? 0;
-  const enquiriesToReview = enquiryCount[0]?.total ?? 0;
+  const enquiryCount = enquiriesThisWeek[0]?.total ?? 0;
+  const assistantQuestionCount = assistantQuestionsThisWeek[0]?.total ?? 0;
+  const publishedPageCount = publishedPages[0]?.total ?? 0;
+  const publishedItemCount = publishedItems[0]?.total ?? 0;
+  const visitorTrackingConfigured = Boolean(process.env.PLAUSIBLE_DOMAIN);
 
   const attentionMarkers: AttentionMarker[] = [];
   for (const page of pageRows) {
@@ -191,9 +217,75 @@ export default async function AdminDashboardPage() {
     <div className="admin-page">
       <header className="admin-page-heading">
         <p className="admin-eyebrow">Dashboard</p>
-        <h1>Welcome to the school office</h1>
-        <p>Manage the school website from one place.</p>
+        <h1>Website overview</h1>
+        <p>See what is happening and get straight to your next task.</p>
       </header>
+
+      <section aria-labelledby="activity-heading" className="admin-section">
+        <div className="admin-section-heading">
+          <div>
+            <p className="admin-eyebrow">Current publishing and last 7 days</p>
+            <h2 id="activity-heading">Site activity</h2>
+          </div>
+        </div>
+        <div className="admin-stat-grid">
+          <article className="admin-stat-card">
+            <span>Published pages</span>
+            <strong>{publishedPageCount}</strong>
+          </article>
+          <article className="admin-stat-card">
+            <span>Published list items</span>
+            <strong>{publishedItemCount}</strong>
+          </article>
+          {user.role === "admin" ? (
+            <article className="admin-stat-card">
+              <span>Applications to review</span>
+              <strong>{applicationCount}</strong>
+            </article>
+          ) : null}
+          <article className="admin-stat-card">
+            <span>Enquiries, last 7 days</span>
+            <strong>{enquiryCount}</strong>
+          </article>
+          <article className="admin-stat-card">
+            <span>Assistant questions, last 7 days</span>
+            <strong>{assistantQuestionCount}</strong>
+          </article>
+          <article className="admin-stat-card admin-stat-note">
+            <span>Visitor analytics</span>
+            <strong>
+              {visitorTrackingConfigured
+                ? "Not available here"
+                : "Not connected"}
+            </strong>
+            <small>
+              {visitorTrackingConfigured
+                ? "Traffic tracking is enabled, but visit reports are not connected to this dashboard."
+                : "Add PLAUSIBLE_DOMAIN to enable privacy-friendly traffic tracking."}
+            </small>
+          </article>
+        </div>
+      </section>
+
+      <section aria-labelledby="shortcuts-heading" className="admin-section">
+        <div className="admin-section-heading">
+          <h2 id="shortcuts-heading">Quick actions</h2>
+        </div>
+        <div className="admin-shortcuts">
+          <Link className="admin-shortcut" href="/admin/news/new">
+            <strong>Write a news article</strong>
+            <span>Write a story and publish it on the website.</span>
+          </Link>
+          <Link className="admin-shortcut" href="/admin/notices/new">
+            <strong>Add a notice</strong>
+            <span>Share an update or pin it to the notice bar.</span>
+          </Link>
+          <Link className="admin-shortcut" href="/admin/media">
+            <strong>Upload photos</strong>
+            <span>Add a photo or document to the library.</span>
+          </Link>
+        </div>
+      </section>
 
       <section
         aria-labelledby="needs-attention"
@@ -203,66 +295,59 @@ export default async function AdminDashboardPage() {
           <p className="admin-eyebrow">A helpful reminder</p>
           <h2 id="needs-attention">Needs attention</h2>
         </div>
-        <ul className="admin-attention-list">
+        <ul className="admin-attention-grid">
           <li>
             <Link href="/admin/media">
               <strong>{sampleCount}</strong>
-              <span>
-                sample {sampleCount === 1 ? "photo" : "photos"} to replace
-              </span>
+              <span>Sample photos to replace</span>
             </Link>
           </li>
           <li>
             <Link href="/admin/media">
               <strong>{consentCount}</strong>
-              <span>
-                {consentCount === 1 ? "photo needs" : "photos need"} consent
-                before it can be published
-              </span>
+              <span>Photos needing consent</span>
             </Link>
           </li>
           <li>
             <Link href="/admin/pages">
               <strong>{attentionMarkers.length}</strong>
-              <span>
-                {attentionMarkers.length === 1
-                  ? "content detail"
-                  : "content details"}{" "}
-                to confirm
-              </span>
+              <span>Content details to confirm</span>
             </Link>
           </li>
-          <li>
-            <Link href="/admin/applications">
-              <strong>{applicationCount}</strong>
-              <span>
-                new {applicationCount === 1 ? "application" : "applications"}
-              </span>
-            </Link>
-          </li>
-          <li>
-            <Link href="/admin/enquiries">
-              <strong>{enquiriesToReview}</strong>
-              <span>
-                enquiry {enquiriesToReview === 1 ? "message" : "messages"}{" "}
-                received
-              </span>
-            </Link>
-          </li>
-        </ul>
-        {attentionMarkers.length > 0 ? (
-          <ul className="admin-sample-list">
-            {attentionMarkers.slice(0, 10).map((marker) => (
-              <li key={marker.id}>
-                <Link href={marker.href}>
-                  {marker.location}: {marker.text}
+          {user.role === "admin" ? (
+            <>
+              <li>
+                <Link href="/admin/applications">
+                  <strong>{applicationCount}</strong>
+                  <span>New applications</span>
                 </Link>
               </li>
-            ))}
-          </ul>
+              <li>
+                <Link href="/admin/enquiries">
+                  <strong>{enquiryCount}</strong>
+                  <span>Enquiries this week</span>
+                </Link>
+              </li>
+            </>
+          ) : null}
+        </ul>
+        {attentionMarkers.length > 0 ? (
+          <details className="admin-attention-details">
+            <summary>Review content details to confirm</summary>
+            <ul className="admin-sample-list">
+              {attentionMarkers.slice(0, 10).map((marker) => (
+                <li key={marker.id}>
+                  <Link href={marker.href}>
+                    {marker.location}: {marker.text}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </details>
         ) : null}
         {samplePhotoRows.length > 0 ? (
-          <>
+          <details className="admin-attention-details">
+            <summary>Review sample photos ({sampleCount})</summary>
             <ul className="admin-sample-list">
               {samplePhotoRows.map((sample) => (
                 <li key={sample.id}>
@@ -272,139 +357,129 @@ export default async function AdminDashboardPage() {
               ))}
             </ul>
             <p className="admin-muted">
-              <Link href="/admin/media">Review sample photos</Link>
+              <Link href="/admin/media">Open photos and files</Link>
             </p>
-          </>
+          </details>
         ) : null}
       </section>
 
-      {unansweredQuestions.length > 0 ? (
-        <section
-          aria-labelledby="unanswered-questions-heading"
-          className="admin-section"
-        >
-          <div className="admin-section-heading">
-            <h2 id="unanswered-questions-heading">
-              Questions we could not answer
-            </h2>
-            <Link href="/admin/faqs">Review questions and answers</Link>
-          </div>
-          <p className="admin-muted">
-            Use these anonymous questions to identify information the website
-            could explain more clearly.
-          </p>
-          <ul className="admin-chat-questions">
-            {unansweredQuestions.map((entry) => (
-              <li key={entry.id}>
-                <span>{entry.question}</span>
-                <time dateTime={new Date(entry.createdAt).toISOString()}>
-                  {new Intl.DateTimeFormat("en", {
-                    dateStyle: "medium",
-                    timeStyle: "short",
-                  }).format(entry.createdAt)}
-                </time>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
-      <section aria-labelledby="shortcuts-heading" className="admin-section">
-        <h2 id="shortcuts-heading">Quick links</h2>
-        <div className="admin-shortcuts">
-          <Link className="admin-shortcut" href="/admin/media">
-            <strong>Upload photos</strong>
-            <span>Add a photo or document to the library.</span>
-          </Link>
-          <Link className="admin-shortcut" href="/admin/news/new">
-            <strong>Write a news article</strong>
-            <span>Write a story and publish it on the website.</span>
-          </Link>
-          <Link className="admin-shortcut" href="/admin/notices/new">
-            <strong>Add a notice</strong>
-            <span>Share an update or pin it to the notice bar.</span>
-          </Link>
-        </div>
-      </section>
-
-      {user.role === "admin" ? (
-        <section aria-labelledby="backup-heading" className="admin-section">
-          <div className="admin-section-heading">
-            <h2 id="backup-heading">Content backup</h2>
-          </div>
-          <p className="admin-muted">
-            Download pages, settings, lists, redirects, and the photo library
-            details. Applications and private files are not included.
-          </p>
-          <Link
-            className="admin-button admin-button-primary"
-            download
-            href="/api/admin/backup"
-            prefetch={false}
+      <div className="admin-activity-grid">
+        {unansweredQuestions.length > 0 ? (
+          <section
+            aria-labelledby="unanswered-questions-heading"
+            className="admin-section admin-activity-panel"
           >
-            Download a backup of all content
-          </Link>
-        </section>
-      ) : null}
+            <div className="admin-section-heading">
+              <h2 id="unanswered-questions-heading">
+                Questions we could not answer
+              </h2>
+              <Link href="/admin/faqs">Review questions and answers</Link>
+            </div>
+            <p className="admin-muted">
+              Anonymous questions can show where the website needs clearer
+              information.
+            </p>
+            <ul className="admin-chat-questions">
+              {unansweredQuestions.slice(0, 5).map((entry) => (
+                <li key={entry.id}>
+                  <span>{entry.question}</span>
+                  <time dateTime={new Date(entry.createdAt).toISOString()}>
+                    {new Intl.DateTimeFormat("en", {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    }).format(entry.createdAt)}
+                  </time>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
 
-      <section
-        aria-labelledby="recent-uploads-heading"
-        className="admin-section"
-      >
-        <div className="admin-section-heading">
-          <h2 id="recent-uploads-heading">Recent photo uploads</h2>
-          <Link href="/admin/media">Open photos and files</Link>
-        </div>
-        {latestUploads.length === 0 ? (
-          <div className="admin-panel admin-empty">
-            <p>No photos have been uploaded yet.</p>
+        {user.role === "admin" ? (
+          <section
+            aria-labelledby="backup-heading"
+            className="admin-section admin-activity-panel"
+          >
+            <div className="admin-section-heading">
+              <h2 id="backup-heading">Content backup</h2>
+            </div>
+            <p className="admin-muted">
+              Download pages, settings, lists, redirects, and the photo library
+              details. Applications and private files are not included.
+            </p>
             <Link
               className="admin-button admin-button-primary"
-              href="/admin/media"
+              download
+              href="/api/admin/backup"
+              prefetch={false}
             >
-              Upload a photo
+              Download a backup of all content
             </Link>
-          </div>
-        ) : (
-          <ul className="admin-recent-list">
-            {latestUploads.map((item) => (
-              <li key={item.id}>
-                <span>{item.alt}</span>
-                <time dateTime={new Date(item.createdAt).toISOString()}>
-                  {new Intl.DateTimeFormat("en", {
-                    dateStyle: "medium",
-                  }).format(item.createdAt)}
-                </time>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+          </section>
+        ) : null}
 
-      <section aria-labelledby="recent-edits-heading" className="admin-section">
-        <div className="admin-section-heading">
-          <h2 id="recent-edits-heading">Recently edited</h2>
-        </div>
-        {recentEdits.length > 0 ? (
-          <ul className="admin-recent-list">
-            {recentEdits.map((edit) => (
-              <li key={edit.id}>
-                <Link href={edit.href}>{edit.title}</Link>
-                <time dateTime={new Date(edit.updatedAt).toISOString()}>
-                  {new Intl.DateTimeFormat("en", {
-                    dateStyle: "medium",
-                    timeStyle: "short",
-                  }).format(edit.updatedAt)}
-                </time>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <div className="admin-panel admin-empty">
-            <p>Saved page and list changes will appear here.</p>
+        <section
+          aria-labelledby="recent-uploads-heading"
+          className="admin-section admin-activity-panel"
+        >
+          <div className="admin-section-heading">
+            <h2 id="recent-uploads-heading">Recent photo uploads</h2>
+            <Link href="/admin/media">Open photos and files</Link>
           </div>
-        )}
-      </section>
+          {latestUploads.length === 0 ? (
+            <div className="admin-panel admin-empty">
+              <p>No photos have been uploaded yet.</p>
+              <Link
+                className="admin-button admin-button-primary"
+                href="/admin/media"
+              >
+                Upload a photo
+              </Link>
+            </div>
+          ) : (
+            <ul className="admin-recent-list">
+              {latestUploads.map((item) => (
+                <li key={item.id}>
+                  <span>{item.alt}</span>
+                  <time dateTime={new Date(item.createdAt).toISOString()}>
+                    {new Intl.DateTimeFormat("en", {
+                      dateStyle: "medium",
+                    }).format(item.createdAt)}
+                  </time>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section
+          aria-labelledby="recent-edits-heading"
+          className="admin-section admin-activity-panel"
+        >
+          <div className="admin-section-heading">
+            <h2 id="recent-edits-heading">Recently edited</h2>
+          </div>
+          {recentEdits.length > 0 ? (
+            <ul className="admin-recent-list">
+              {recentEdits.map((edit) => (
+                <li key={edit.id}>
+                  <Link href={edit.href}>{edit.title}</Link>
+                  <time dateTime={new Date(edit.updatedAt).toISOString()}>
+                    {new Intl.DateTimeFormat("en", {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    }).format(edit.updatedAt)}
+                  </time>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="admin-panel admin-empty">
+              <p>Saved page and list changes will appear here.</p>
+            </div>
+          )}
+        </section>
+      </div>
     </div>
   );
 }

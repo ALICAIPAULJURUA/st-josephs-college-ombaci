@@ -706,6 +706,10 @@ Status: incomplete. SEO, accessibility and security checks pass; performance bud
 - Tested preloading only Barlow weight 400 and explicit Next.js image preloading; neither produced a reliable improvement, and both experiments were reverted. Font strategy, image priority behavior, and Lighthouse budgets remain unchanged.
 - Tested five-minute fallback cache lifetimes for settings, pages and redirects. Publishing invalidation passed focused browser tests, but Lighthouse showed no consistent improvement; the cache lifetimes were restored to 60 seconds.
 - Deferred application/contact forms initially allowed input before their client handlers were ready; they now render an accessible loading status until the form bundle is available. The focused admissions and detail-sharing tests passed, followed by the full 57-test E2E suite.
+- Reorganized the admin dashboard around publishing totals, recent activity, clearly grouped attention counts, and prominent quick actions. Visitor reports are identified as unavailable because no reporting store is connected.
+- Replaced the admin sidebar text mark with the school crest and changed TinyMCE's sliding toolbar to a wrapping toolbar so configured tools remain visible.
+- Added browser coverage for the visible crest, fetchable favicon, dashboard overview, and TinyMCE's complete configured toolbar and local script.
+- Follow-up verification: lint, typecheck, unit tests (36), production build, and the full Playwright suite (58) pass. Dashboard/editor layouts remain free of horizontal overflow at 1440, 1024, 820, 640, and 375 px. A pre-existing Next.js image-dimension warning remains on crest rendering.
 
 ### Next
 

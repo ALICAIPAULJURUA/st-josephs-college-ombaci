@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -194,9 +195,15 @@ export function WorkspaceNav({ user }: { user: AdminUser }) {
           className="admin-brand"
           href={user.role === "admissions" ? "/admin/applications" : "/admin"}
         >
-          <span className="admin-brand-mark" aria-hidden="true">
-            SJ
-          </span>
+          <Image
+            alt=""
+            aria-hidden="true"
+            className="admin-brand-mark"
+            height={42}
+            priority
+            src="/crest.png"
+            width={42}
+          />
           <span>
             <strong>School office</strong>
             <small>St. Joseph&apos;s College, Ombaci</small>

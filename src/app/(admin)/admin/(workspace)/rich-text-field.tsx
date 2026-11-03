@@ -148,7 +148,7 @@ export function RichTextField({
           branding: false,
           promotion: false,
           height: 360,
-          toolbar_mode: "sliding",
+          toolbar_mode: "wrap",
           toolbar:
             "undo redo | blocks | bold italic | bullist numlist | siteLink | siteImage | table | siteQuote | removeformat",
           plugins: "image link lists table",

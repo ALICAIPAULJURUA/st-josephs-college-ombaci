@@ -16,13 +16,16 @@ async function signIn(page: Page, role: keyof typeof E2E_USERS) {
 test("administrator can sign in and open staff accounts", async ({ page }) => {
   await signIn(page, "admin");
   await expect(page).toHaveURL(/\/admin$/);
-  await expect(page.getByText("sample photos to replace")).toBeVisible();
+  await expect(
+    page.getByText("Sample photos to replace", { exact: true }),
+  ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Questions we could not answer" }),
   ).toBeVisible();
   await expect(
     page.getByText("E2E sample question for the assistant dashboard."),
   ).toBeVisible();
+  await page.getByText(/^Review sample photos/).click();
   for (const sample of sampleMedia) {
     await expect(
       page.locator(".admin-sample-list").getByText(sample.alt),
@@ -54,6 +57,24 @@ test("dashboard shortcuts and searchable Help are available", async ({
   page,
 }) => {
   await signIn(page, "admin");
+  await expect(
+    page.getByRole("heading", { name: "Website overview" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Site activity" }),
+  ).toBeVisible();
+  await expect(page.getByText("Not connected")).toBeVisible();
+  await expect(page.locator(".admin-brand img")).toHaveAttribute(
+    "src",
+    /crest\.png/,
+  );
+  await expect
+    .poll(() =>
+      page
+        .locator(".admin-brand img")
+        .evaluate((image: HTMLImageElement) => image.naturalWidth),
+    )
+    .toBeGreaterThan(0);
   await expect(page.getByRole("link", { name: "Dashboard" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Help" })).toBeVisible();
   await expect(
@@ -79,6 +100,50 @@ test("dashboard shortcuts and searchable Help are available", async ({
   await expect(
     page.getByRole("heading", { name: "Download a content backup" }),
   ).toBeVisible();
+});
+
+test("TinyMCE exposes the full toolbar and loads its local assets", async ({
+  page,
+}) => {
+  await signIn(page, "admin");
+  await expect(page).toHaveURL(/\/admin$/);
+  const tinyMceScript = page.waitForResponse(
+    (response) =>
+      response.url().endsWith("/tinymce/tinymce.min.js") && response.ok(),
+  );
+  await page.goto("/admin/pages/about");
+  await tinyMceScript;
+  await expect(
+    page.getByRole("heading", { name: "About the college" }),
+  ).toBeVisible();
+  const editor = page.locator(".tox-tinymce");
+  await expect(editor).toBeVisible();
+
+  for (const title of [
+    "Undo",
+    "Redo",
+    "Bold",
+    "Italic",
+    "Bullet list",
+    "Numbered list",
+    "Clear formatting",
+  ]) {
+    await expect(editor.getByRole("button", { name: title })).toBeVisible();
+  }
+  for (const title of [
+    "Add a link",
+    "Choose a photo",
+    "Format as a quote",
+    "Table",
+  ]) {
+    await expect(editor.getByRole("button", { name: title })).toBeVisible();
+  }
+  await editor.getByRole("button", { name: "Block Paragraph" }).click();
+  for (const format of ["Paragraph", "Heading 2", "Heading 3"]) {
+    await expect(
+      page.getByRole("menuitemcheckbox", { name: format }),
+    ).toBeVisible();
+  }
 });
 
 test("admin pages fit the reference widths without horizontal scrolling", async ({
@@ -160,7 +225,7 @@ test("editor cannot open staff accounts", async ({ page }) => {
   await page.goto("/admin/users");
   await expect(page).toHaveURL(/\/admin$/);
   await expect(
-    page.getByRole("heading", { name: "Welcome to the school office" }),
+    page.getByRole("heading", { name: "Website overview" }),
   ).toBeVisible();
 });
 

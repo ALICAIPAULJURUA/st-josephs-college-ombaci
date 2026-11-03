@@ -43,6 +43,9 @@ test("admin CSP permits local scripts needed by TinyMCE", async ({ page }) => {
     "href",
     "/crest.png",
   );
+  const crest = await page.request.get("/crest.png");
+  expect(crest.ok()).toBe(true);
+  expect(crest.headers()["content-type"]).toContain("image/png");
 
   const policy = response?.headers()["content-security-policy"] ?? "";
   const scriptPolicy = policy
