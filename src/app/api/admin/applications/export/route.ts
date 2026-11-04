@@ -2,6 +2,7 @@ import { desc } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
 import {
+  applicationFieldLabel,
   applicationFieldGroups,
 } from "@/content/schemas/application-fields";
 import { db } from "@/db/client";
@@ -45,12 +46,25 @@ export async function GET(request: NextRequest) {
       .select()
       .from(applications)
       .orderBy(desc(applications.createdAt));
-    const fieldNames = applicationFieldGroups.flatMap((group) => group.fields);
+    const knownFieldNames = applicationFieldGroups.flatMap(
+      (group) => group.fields,
+    );
+    const knownFields = new Set<string>(knownFieldNames);
+    const historicalFieldNames = [
+      ...new Set(
+        records.flatMap((record) =>
+          Object.keys(record.fields).filter(
+            (field) => !knownFields.has(field) && field !== "consent",
+          ),
+        ),
+      ),
+    ].sort();
+    const fieldNames = [...knownFieldNames, ...historicalFieldNames];
     const headers = [
       "Reference",
       "Status",
       "Received",
-      ...fieldNames.map((field) => field.replaceAll(/([A-Z])/g, " $1")),
+      ...fieldNames.map(applicationFieldLabel),
     ];
     const rows = records.map((record) => [
       record.id,

@@ -1,10 +1,11 @@
 # Local SQLite backups
 
-The `pnpm backup:sqlite` command creates a consistent SQLite snapshot with
-`VACUUM INTO`, verifies it with `PRAGMA integrity_check`, and removes its own
-backup files after 30 days. It only accepts a `DATABASE_URL` using the `file:`
-scheme. Backup files are written to `backups/` next to the database and are
-excluded from Git.
+The `pnpm backup:sqlite` command is for the legacy local SQLite database. It
+creates a consistent snapshot with `VACUUM INTO`, verifies it with
+`PRAGMA integrity_check`, and removes its own backup files after 30 days. It
+reads `SQLITE_DATABASE_URI` (or defaults to `file:./data/site-legacy.sqlite`)
+and does not back up the active PostgreSQL/Neon database. Backup files are
+written to `backups/` next to the database and are excluded from Git.
 
 ## Schedule a daily backup on Windows
 
@@ -17,19 +18,17 @@ excluded from Git.
 7. Finish the task and run it once from Task Scheduler to confirm it succeeds.
 
 Use the same account and `.env.local` configuration as the website so the
-script backs up the intended local SQLite database.
+script backs up the intended legacy SQLite database.
 
 ## Restore test
 
 1. Stop the local website.
 2. Copy one `data/backups/site-*.sqlite` file to a separate test filename; do
    not overwrite the live database.
-3. Temporarily point `DATABASE_URL` at that test copy and run `pnpm db:migrate`.
-4. Start the website against the test copy and open the home page and one
-   published content page. Confirm both load without database errors.
-5. Stop the website, restore the normal `DATABASE_URL`, and remove only the
-   test copy.
+3. Use a separate SQLite-compatible restore utility to inspect the test copy;
+   the active website database now uses PostgreSQL.
+4. Confirm the restored database passes `PRAGMA integrity_check`.
+5. Remove only the test copy.
 
-Production database hosting and backup providers have not been selected. This
-local SQLite task does not configure production backups; production scheduling,
-retention, and a restore test remain open until the owner chooses a provider.
+The website's active Neon database requires its own backup and restore plan.
+This legacy SQLite utility does not back up or restore Neon data.

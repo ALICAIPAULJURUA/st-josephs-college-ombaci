@@ -1,14 +1,10 @@
-import { migrate } from "drizzle-orm/libsql/migrator";
-
 import { ensureLocalDatabaseDirectory } from "../src/db/local-file";
+import { migrateDatabase } from "../src/db/migrations";
 
-const databaseUrl = process.env.DATABASE_URL || "file:./data/site.db";
+const databaseUrl = process.env.DATABASE_URL || "pglite:./data/site.db";
+const migrationUrl = databaseUrl.startsWith("pglite:")
+  ? databaseUrl
+  : process.env.DATABASE_URL_UNPOOLED || databaseUrl;
 await ensureLocalDatabaseDirectory(databaseUrl);
-
-const { client, db } = await import("../src/db/client");
-
-try {
-  await migrate(db, { migrationsFolder: "./drizzle" });
-} finally {
-  await client.close();
-}
+await ensureLocalDatabaseDirectory(migrationUrl);
+await migrateDatabase(migrationUrl);

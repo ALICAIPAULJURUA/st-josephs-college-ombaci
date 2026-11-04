@@ -1,11 +1,11 @@
 import { mkdir } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
+import { resolve } from "node:path";
 
 export async function ensureLocalDatabaseDirectory(url: string) {
-  if (!url.startsWith("file:")) return;
+  if (!url.startsWith("pglite:")) return;
 
-  const filePath = url.slice("file:".length);
-  if (!filePath || filePath.startsWith(":")) return;
+  const dataDirectory = url.slice("pglite:".length);
+  if (!dataDirectory || dataDirectory === ":memory:") return;
 
-  await mkdir(dirname(resolve(filePath)), { recursive: true });
+  await mkdir(resolve(dataDirectory), { recursive: true });
 }

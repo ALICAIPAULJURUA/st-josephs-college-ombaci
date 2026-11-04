@@ -1,7 +1,7 @@
-import { createClient } from "@libsql/client";
+import { PGlite } from "@electric-sql/pglite";
 import { eq } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/libsql";
-import { migrate } from "drizzle-orm/libsql/migrator";
+import { drizzle } from "drizzle-orm/pglite";
+import { migrate } from "drizzle-orm/pglite/migrator";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { stat } from "node:fs/promises";
@@ -15,18 +15,20 @@ import {
   seedContent,
   seedDevelopmentAdmin,
 } from "@/db/seed";
+import type { Database } from "@/db/client";
 import * as schema from "@/db/schema";
 
 describe("database seed", () => {
-  const clients: ReturnType<typeof createClient>[] = [];
-  let database: ReturnType<typeof drizzle<typeof schema>>;
+  const clients: PGlite[] = [];
+  let database: Database;
 
   beforeEach(async () => {
-    const client = createClient({ url: "file::memory:" });
+    const client = new PGlite();
     clients.push(client);
-    database = drizzle(client, { schema });
-    await migrate(database, {
-      migrationsFolder: resolve(process.cwd(), "drizzle"),
+    const pgliteDatabase = drizzle(client, { schema });
+    database = pgliteDatabase as Database;
+    await migrate(pgliteDatabase, {
+      migrationsFolder: resolve(process.cwd(), "drizzle/postgres"),
     });
   });
 

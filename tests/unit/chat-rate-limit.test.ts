@@ -1,21 +1,23 @@
-import { createClient } from "@libsql/client";
-import { drizzle } from "drizzle-orm/libsql";
-import { migrate } from "drizzle-orm/libsql/migrator";
+import { PGlite } from "@electric-sql/pglite";
+import { drizzle } from "drizzle-orm/pglite";
+import { migrate } from "drizzle-orm/pglite/migrator";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { resolve } from "node:path";
 import { consumeChatLimit, CHAT_IP_LIMIT } from "@/lib/chat/rate-limit";
 import * as schema from "@/db/schema";
+import type { Database } from "@/db/client";
 
 describe("assistant rate limits", () => {
-  let client: ReturnType<typeof createClient>;
-  let database: ReturnType<typeof drizzle<typeof schema>>;
+  let client: PGlite;
+  let database: Database;
 
   beforeEach(async () => {
-    client = createClient({ url: "file::memory:" });
-    database = drizzle(client, { schema });
-    await migrate(database, {
-      migrationsFolder: resolve(process.cwd(), "drizzle"),
+    client = new PGlite();
+    const pgliteDatabase = drizzle(client, { schema });
+    database = pgliteDatabase as Database;
+    await migrate(pgliteDatabase, {
+      migrationsFolder: resolve(process.cwd(), "drizzle/postgres"),
     });
   });
 

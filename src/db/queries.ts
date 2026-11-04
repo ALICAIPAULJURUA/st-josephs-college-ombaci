@@ -6,7 +6,7 @@ import { db } from "./client";
 import { items, pages, redirects, settings } from "./schema";
 
 const databaseCacheNamespace = createHash("sha256")
-  .update(process.env.DATABASE_URL || "file:./data/site.db")
+  .update(process.env.DATABASE_URL || "pglite:./data/site.db")
   .digest("hex")
   .slice(0, 16);
 

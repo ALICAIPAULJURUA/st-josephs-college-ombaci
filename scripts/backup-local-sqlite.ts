@@ -1,9 +1,9 @@
 import { readdir, mkdir, stat, unlink } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
+import { createClient } from "@libsql/client";
 
-import { createDatabase } from "../src/db/client";
-
-const databaseUrl = process.env.DATABASE_URL || "file:./data/site.db";
+const databaseUrl =
+  process.env.SQLITE_DATABASE_URI || "file:./data/site-legacy.sqlite";
 if (!databaseUrl.startsWith("file:")) {
   throw new Error(
     "Local SQLite backup requires DATABASE_URL to use the file: scheme.",
@@ -21,23 +21,21 @@ const generatedAt = new Date();
 const fileTimestamp = generatedAt.toISOString().replace(/[:.]/g, "-");
 const backupPath = join(backupDirectory, `site-${fileTimestamp}.sqlite`);
 const backupUrl = `file:./${relative(process.cwd(), backupPath).replaceAll("\\", "/")}`;
-const database = createDatabase(databaseUrl);
+const database = createClient({ url: databaseUrl });
 
 try {
   await mkdir(backupDirectory, { recursive: true });
   const escapedPath = backupPath.replaceAll("'", "''");
-  await database.client.execute(`VACUUM INTO '${escapedPath}'`);
+  await database.execute(`VACUUM INTO '${escapedPath}'`);
 
-  const backupDatabase = createDatabase(backupUrl);
+  const backupDatabase = createClient({ url: backupUrl });
   try {
-    const result = await backupDatabase.client.execute(
-      "PRAGMA integrity_check",
-    );
+    const result = await backupDatabase.execute("PRAGMA integrity_check");
     if (result.rows[0]?.integrity_check !== "ok") {
       throw new Error("The new SQLite backup failed its integrity check.");
     }
   } finally {
-    await backupDatabase.client.close();
+    await backupDatabase.close();
   }
 
   const retentionCutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
@@ -61,5 +59,5 @@ try {
   console.log(`Created and verified SQLite backup: ${backupPath}`);
   console.log("Backups older than 30 days were removed.");
 } finally {
-  await database.client.close();
+  await database.close();
 }

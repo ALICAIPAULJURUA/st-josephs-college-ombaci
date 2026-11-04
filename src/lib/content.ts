@@ -1,4 +1,8 @@
-import { settingsDefaults, type SiteSettings } from "@/content/defaults/site";
+import {
+  ensureRequestedPrimaryNavigation,
+  settingsDefaults,
+  type SiteSettings,
+} from "@/content/defaults/site";
 import { buildValidator } from "@/content/schemas";
 import { getCollectionSchema } from "@/content/schemas/collections";
 import {
@@ -46,7 +50,13 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     throw new Error(`The published site settings are invalid: ${issues}`);
   }
 
-  return result.data;
+  return {
+    ...result.data,
+    navigation: {
+      ...result.data.navigation,
+      primary: ensureRequestedPrimaryNavigation(result.data.navigation.primary),
+    },
+  };
 }
 
 export async function getNavigation(): Promise<SiteSettings["navigation"]> {

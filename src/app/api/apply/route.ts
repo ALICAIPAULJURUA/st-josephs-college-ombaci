@@ -14,7 +14,6 @@ import {
   settings,
 } from "@/db/schema";
 import {
-  assertEmailConfigured,
   EmailDeliveryError,
   sendApplicationEmails,
 } from "@/lib/admissions/email";
@@ -30,6 +29,7 @@ import {
 } from "@/lib/admissions/private-files";
 import { TurnstileError, verifyTurnstile } from "@/lib/admissions/turnstile";
 import { isSameOrigin } from "@/lib/admin/same-origin";
+import { isApplicationSubmissionConfigured } from "@/lib/admissions/readiness";
 
 export const runtime = "nodejs";
 
@@ -55,6 +55,12 @@ export async function POST(request: NextRequest) {
   }
   if (!(await applicationsAreOpen())) {
     return jsonError("Online applications are currently closed.", 409);
+  }
+  if (!isApplicationSubmissionConfigured()) {
+    return jsonError(
+      "Online applications are temporarily unavailable. Please contact the school.",
+      503,
+    );
   }
 
   const contentLengthHeader = request.headers.get("content-length");
@@ -168,18 +174,6 @@ export async function POST(request: NextRequest) {
       if (error instanceof Error) return jsonError(error.message, 400);
       throw error;
     }
-  }
-
-  try {
-    assertEmailConfigured();
-  } catch (error) {
-    if (error instanceof EmailDeliveryError) {
-      return jsonError(
-        "The application service is not ready to receive submissions. Please contact the school.",
-        503,
-      );
-    }
-    throw error;
   }
 
   try {

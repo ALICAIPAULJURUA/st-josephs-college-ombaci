@@ -4,6 +4,7 @@ import { desc, inArray } from "drizzle-orm";
 import { redirect } from "next/navigation";
 
 import {
+  applicationFieldLabel,
   applicationFieldGroups,
   applicationStatusSchema,
   type ApplicationStatus,
@@ -22,8 +23,7 @@ export const metadata: Metadata = {
   title: "Applications",
 };
 
-const statuses: readonly ApplicationStatus[] =
-  applicationStatusSchema.options;
+const statuses: readonly ApplicationStatus[] = applicationStatusSchema.options;
 const statusLabels: Record<ApplicationStatus, string> = {
   new: "New",
   in_review: "In review",
@@ -32,6 +32,9 @@ const statusLabels: Record<ApplicationStatus, string> = {
   declined: "Declined",
   closed: "Closed",
 };
+const knownApplicationFields = new Set<string>(
+  applicationFieldGroups.flatMap((group) => group.fields),
+);
 
 function displayValue(value: unknown) {
   if (typeof value === "string" || typeof value === "number") {
@@ -53,7 +56,11 @@ export default async function AdminApplicationsPage({
 
   const [{ notice }, records] = await Promise.all([
     searchParams,
-    db.select().from(applications).orderBy(desc(applications.createdAt)).limit(100),
+    db
+      .select()
+      .from(applications)
+      .orderBy(desc(applications.createdAt))
+      .limit(100),
   ]);
   const recordIds = records.map((record) => record.id);
   const [history, files] =
@@ -114,6 +121,13 @@ export default async function AdminApplicationsPage({
                 .map((field) => [field, record.fields[field]] as const)
                 .filter(([, value]) => value !== undefined && value !== ""),
             }));
+            const legacyValues = Object.entries(record.fields).filter(
+              ([field, value]) =>
+                !knownApplicationFields.has(field) &&
+                field !== "consent" &&
+                value !== undefined &&
+                value !== "",
+            );
             const recordFiles = filesByApplication.get(record.id) ?? [];
             const recordHistory = historyByApplication.get(record.id) ?? [];
 
@@ -139,10 +153,7 @@ export default async function AdminApplicationsPage({
                     />
                     <label className="admin-field">
                       Status
-                      <select
-                        defaultValue={record.status}
-                        name="status"
-                      >
+                      <select defaultValue={record.status} name="status">
                         {statuses.map((status) => (
                           <option key={status} value={status}>
                             {statusLabels[status]}
@@ -162,13 +173,26 @@ export default async function AdminApplicationsPage({
                       <dl className="admin-record-details">
                         {group.values.map(([key, value]) => (
                           <div key={key}>
-                            <dt>{key.replaceAll(/([A-Z])/g, " $1")}</dt>
+                            <dt>{applicationFieldLabel(key)}</dt>
                             <dd>{displayValue(value)}</dd>
                           </div>
                         ))}
                       </dl>
                     </section>
                   ))}
+                  {legacyValues.length > 0 ? (
+                    <section>
+                      <h3>Earlier application details</h3>
+                      <dl className="admin-record-details">
+                        {legacyValues.map(([key, value]) => (
+                          <div key={key}>
+                            <dt>{applicationFieldLabel(key)}</dt>
+                            <dd>{displayValue(value)}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </section>
+                  ) : null}
                 </div>
                 {recordFiles.length > 0 ? (
                   <section className="admin-application-files">
@@ -182,10 +206,7 @@ export default async function AdminApplicationsPage({
                           >
                             {file.originalName}
                           </Link>
-                          <span>
-                            {" "}
-                            ({Math.ceil(file.size / 1024)} KB)
-                          </span>
+                          <span> ({Math.ceil(file.size / 1024)} KB)</span>
                         </li>
                       ))}
                     </ul>

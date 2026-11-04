@@ -1,15 +1,15 @@
 import { defineConfig } from "drizzle-kit";
 
-const databaseUrl = process.env.DATABASE_URL || "file:./data/site.db";
+const databaseUrl =
+  process.env.DATABASE_URL_UNPOOLED ||
+  process.env.DATABASE_URL ||
+  "postgresql://localhost/ombaci";
 
 export default defineConfig({
   schema: "./src/db/schema.ts",
-  out: "./drizzle",
-  dialect: "sqlite",
+  out: "./drizzle/postgres",
+  dialect: "postgresql",
   dbCredentials: {
     url: databaseUrl,
-    ...(databaseUrl.startsWith("file:") || !process.env.DATABASE_AUTH_TOKEN
-      ? {}
-      : { authToken: process.env.DATABASE_AUTH_TOKEN }),
   },
 });

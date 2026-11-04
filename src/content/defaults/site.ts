@@ -56,7 +56,14 @@ export const siteSettings = {
   contactHeading: "Contact",
 } as const;
 
+export const requestedPrimaryNavigation: NavItem[] = [
+  { label: "Home", href: "/" },
+  { label: "Media", href: "/gallery" },
+  { label: "News", href: "/news" },
+];
+
 export const primaryNavigation: NavItem[] = [
+  ...requestedPrimaryNavigation,
   {
     label: "About",
     href: "/about",
@@ -104,6 +111,16 @@ export const defaultNavigation = {
   primary: primaryNavigation,
   footer: [{ title: "Explore", links: footerExplore }],
 };
+
+export function ensureRequestedPrimaryNavigation(
+  primary: readonly NavItem[],
+): NavItem[] {
+  const configuredHrefs = new Set(primary.map((item) => item.href));
+  const missingLinks = requestedPrimaryNavigation.filter(
+    (item) => !configuredHrefs.has(item.href),
+  );
+  return [...missingLinks, ...primary];
+}
 
 export const settingsDefaults = {
   ...siteSettings,

@@ -17,10 +17,8 @@ import { homePageSchema } from "../content/schemas/home";
 import { innerPageSchemas } from "../content/schemas/inner-pages";
 import { settingsSchema } from "../content/schemas/settings";
 import { getMediaStorage } from "../lib/admin/storage";
-import type { LibSQLDatabase } from "drizzle-orm/libsql";
 import * as schema from "./schema";
-
-export type Database = LibSQLDatabase<typeof schema>;
+import type { Database } from "./client";
 
 const adminCredentialsSchema = z.object({
   email: z.email(),

@@ -9,6 +9,7 @@ import { db } from "@/db/client";
 import { media, pages, revisions, settings } from "@/db/schema";
 import { getAuthenticatedAdmin } from "@/lib/admin/auth";
 import { getMediaUrl } from "@/lib/admin/storage";
+import { getSiteSettings } from "@/lib/content";
 
 import { PageEditorForm } from "./page-editor-form";
 
@@ -145,9 +146,6 @@ export async function PageEditor({
       .limit(20),
   ]);
   const record = pageRows[0];
-  const savedSettings = Object.fromEntries(
-    settingsRows.map((row) => [row.key, row.value]),
-  );
   const defaults =
     schema.key === "home"
       ? homePageDefaults
@@ -156,7 +154,7 @@ export async function PageEditor({
         : (innerPageDefaults[schema.key] ?? {});
   const liveFields =
     schema.key === "settings"
-      ? { ...settingsDefaults, ...savedSettings }
+      ? await getSiteSettings()
       : (record?.fields ?? defaults);
   const editorFields = record?.draftFields ?? liveFields;
   const revisionsForEditor = revisionRows.map((revision) => {

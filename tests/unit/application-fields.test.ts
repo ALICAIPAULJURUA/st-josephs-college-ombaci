@@ -2,79 +2,74 @@ import { describe, expect, it } from "vitest";
 
 import {
   applicationFieldsSchema,
-  applicationStepSchemas,
   contactEnquirySchema,
 } from "@/content/schemas/application-fields";
 
 const validApplication = {
-  applicantName: "Amina Example",
+  studentFirstName: "Amina",
+  studentLastName: "Example",
   dateOfBirth: "2012-04-15",
-  sex: "Female",
-  nationality: "Ugandan",
-  entryClass: "Senior One",
-  religion: "",
+  gender: "Female",
+  gradeApplyingFor: "Senior One",
   previousSchool: "Arua Primary School",
-  schoolDistrict: "Arua",
-  completionYear: "2025",
-  pleIndexNumber: "PLE 123456",
-  pleAggregate: "8",
-  uceIndexNumber: "",
-  uceResults: "",
-  subjectPreferences: "",
-  guardianName: "Guardian Example",
-  guardianRelationship: "Parent",
+  guardianFirstName: "Guardian",
+  guardianLastName: "Example",
+  guardianOccupation: "",
+  guardianAddress: "Arua City",
+  emergencyContactName: "Emergency Contact",
+  emergencyContactPhone: "+256700000000",
+  emergencyContactRelationship: "Parent",
+  medicalConditions: "",
+  allergies: "",
+  additionalNotes: "",
   guardianPhone: "+256700000000",
-  guardianWhatsApp: "",
   guardianEmail: "guardian@example.test",
-  residentialAddress: "Arua City",
   consent: true,
 };
 
 describe("application fields", () => {
-  it("requires PLE details for Senior One applications", () => {
+  it("accepts the requested application details and optional fields", () => {
     expect(applicationFieldsSchema.safeParse(validApplication).success).toBe(
       true,
     );
-    const result = applicationFieldsSchema.safeParse({
+    const withoutOptionalDetails = applicationFieldsSchema.safeParse({
       ...validApplication,
-      pleIndexNumber: "",
+      previousSchool: "",
+      guardianOccupation: "",
+      medicalConditions: "",
+      allergies: "",
+      additionalNotes: "",
     });
-
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues).toContainEqual(
-        expect.objectContaining({ path: ["pleIndexNumber"] }),
-      );
-    }
+    expect(withoutOptionalDetails.success).toBe(true);
   });
 
-  it("requires UCE details, but not PLE details, for Senior Five applications", () => {
-    const seniorFive = {
+  it("requires contact, emergency, date, grade, and consent details", () => {
+    const missingRequiredDetails = applicationFieldsSchema.safeParse({
       ...validApplication,
-      entryClass: "Senior Five",
-      pleIndexNumber: "",
-      pleAggregate: "",
-      uceIndexNumber: "UCE 654321",
-      uceResults: "Division one",
-    };
-    expect(applicationFieldsSchema.safeParse(seniorFive).success).toBe(true);
-
-    const missingResults = applicationFieldsSchema.safeParse({
-      ...seniorFive,
-      uceResults: "",
+      studentFirstName: "",
+      emergencyContactPhone: "",
+      consent: false,
     });
-    expect(missingResults.success).toBe(false);
-    if (!missingResults.success) {
-      expect(missingResults.error.issues).toContainEqual(
-        expect.objectContaining({ path: ["uceResults"] }),
+    expect(missingRequiredDetails.success).toBe(false);
+    if (!missingRequiredDetails.success) {
+      expect(missingRequiredDetails.error.issues).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ path: ["studentFirstName"] }),
+          expect.objectContaining({ path: ["emergencyContactPhone"] }),
+          expect.objectContaining({ path: ["consent"] }),
+        ]),
       );
     }
+
+    expect(
+      applicationFieldsSchema.safeParse({
+        ...validApplication,
+        gradeApplyingFor: "Senior Three",
+      }).success,
+    ).toBe(false);
   });
 
-  it("validates the matching application step and the contact enquiry", () => {
-    expect(applicationStepSchemas[1].safeParse(validApplication).success).toBe(
-      true,
-    );
+  it("validates the contact enquiry", () => {
     expect(
       contactEnquirySchema.safeParse({
         name: "Parent Example",

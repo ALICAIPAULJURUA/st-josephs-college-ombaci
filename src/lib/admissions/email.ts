@@ -16,16 +16,37 @@ type EmailMessage = {
 
 const TEST_EMAIL_KEY = "playwright-test-email-key-not-for-deployment";
 
-function requiredEmailConfig() {
-  const apiKey = process.env.EMAIL_API_KEY;
-  const from = process.env.EMAIL_FROM;
-  const admissionsInbox = process.env.ADMISSIONS_EMAIL;
+type EmailConfig = {
+  apiKey: string;
+  from: string;
+  admissionsInbox: string;
+};
 
-  if (!apiKey || !from || !admissionsInbox || !z.email().safeParse(admissionsInbox).success) {
-    throw new EmailDeliveryError();
+function emailConfig(environment: NodeJS.ProcessEnv): EmailConfig | null {
+  const apiKey = environment.EMAIL_API_KEY?.trim();
+  const from = environment.EMAIL_FROM?.trim();
+  const admissionsInbox = environment.ADMISSIONS_EMAIL?.trim();
+
+  if (
+    !apiKey ||
+    !from ||
+    !admissionsInbox ||
+    !z.email().safeParse(admissionsInbox).success
+  ) {
+    return null;
   }
 
   return { apiKey, from, admissionsInbox };
+}
+
+function requiredEmailConfig() {
+  const config = emailConfig(process.env);
+  if (!config) throw new EmailDeliveryError();
+  return config;
+}
+
+export function isEmailConfigured(environment = process.env) {
+  return emailConfig(environment) !== null;
 }
 
 export function assertEmailConfigured() {
@@ -34,10 +55,7 @@ export function assertEmailConfigured() {
 
 export async function sendResendBatch(messages: readonly EmailMessage[]) {
   const { apiKey, from } = requiredEmailConfig();
-  if (
-    process.env.NODE_ENV !== "production" &&
-    apiKey === TEST_EMAIL_KEY
-  ) {
+  if (process.env.NODE_ENV !== "production" && apiKey === TEST_EMAIL_KEY) {
     return;
   }
 

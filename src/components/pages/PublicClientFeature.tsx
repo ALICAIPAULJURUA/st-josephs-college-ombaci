@@ -29,6 +29,7 @@ type Props =
       feature: "application";
       siteKey: string;
       consentHtml: string;
+      submissionReady: boolean;
     }
   | {
       feature: "contact";
@@ -46,6 +47,7 @@ export function PublicClientFeature(props: Props) {
       <ApplicationForm
         consentHtml={props.consentHtml}
         siteKey={props.siteKey}
+        submissionReady={props.submissionReady}
       />
     );
   }

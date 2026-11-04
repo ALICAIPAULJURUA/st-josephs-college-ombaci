@@ -77,7 +77,7 @@ One Next.js application serves the public site, the admin area and the API route
 | Framework | Next.js (App Router), React, TypeScript strict, pnpm | Server Components by default. **Do not enable Cache Components** (`cacheComponents`); use normal static generation with `revalidate` and `revalidateTag` |
 | Styling | Tailwind CSS v4 plus CSS-variable tokens | Tokens in `src/styles/tokens.css` |
 | Fonts | `next/font/google`: Big Shoulders Display (600, 800, 900), Barlow (400 to 700) | Latin subset |
-| Database | SQLite through Drizzle ORM for development. Local SQLite file (`file:./data/site.db`) | Production database provider and migration plan are not decided; the owner will guide this choice. Do not assume Turso or another production provider. |
+| Database | PostgreSQL through Drizzle ORM. Neon for the website database; PGlite in a local data directory when `DATABASE_URL` is unset. | The Neon project and schema migration are managed separately from the legacy SQLite database. Do not copy private application records without approval. |
 | Auth | Email and password, argon2id hashing, signed httpOnly session cookie (iron-session or Auth.js credentials), login rate limit | No social login |
 | Rich text | TinyMCE (`@tinymce/tinymce-react`, self-hosted from the `tinymce` package) | Section 6 |
 | Media storage | A storage adapter with two implementations: local disk (`public/uploads`) for development, Cloudinary or Cloudflare R2 for production | Hosts with read-only disks (Vercel) cannot keep uploads on disk |
@@ -113,7 +113,7 @@ One Next.js application serves the public site, the admin area and the API route
 /tests
 ```
 
-**Environment variables** (names only): `DATABASE_URL`, `DATABASE_AUTH_TOKEN`, `SESSION_SECRET`, `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_WHATSAPP_NUMBER` (fallback only; the admin setting wins), `STORAGE_DRIVER`, `CLOUDINARY_*` or `R2_*`, `TINYMCE_API_KEY` (only if using Cloud), `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL`, `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, `EMAIL_FROM`, `ADMISSIONS_EMAIL`, `EMAIL_API_KEY`, `PLAUSIBLE_DOMAIN`, `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` (development only; never used in production).
+**Environment variables** (names only): `DATABASE_URL` (pooled Neon PostgreSQL URL; optional for local PGlite), `DATABASE_URL_UNPOOLED` (direct URL for schema migrations), `SESSION_SECRET`, `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_WHATSAPP_NUMBER` (fallback only; the admin setting wins), `STORAGE_DRIVER`, `CLOUDINARY_*` or `R2_*`, `TINYMCE_API_KEY` (only if using Cloud), `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL`, `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, `EMAIL_FROM`, `ADMISSIONS_EMAIL`, `EMAIL_API_KEY`, `PLAUSIBLE_DOMAIN`, `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` (development only; never used in production).
 
 ## 4. Content model: how every page stays editable
 

@@ -1,13 +1,15 @@
-import { migrate } from "drizzle-orm/libsql/migrator";
-
 import { ensureLocalDatabaseDirectory } from "../src/db/local-file";
+import { migrateDatabase } from "../src/db/migrations";
 import {
   parseSeedAdminConfig,
   seedContent,
   seedDevelopmentAdmin,
 } from "../src/db/seed";
 
-const databaseUrl = process.env.DATABASE_URL || "file:./data/site.db";
+const databaseUrl = process.env.DATABASE_URL || "pglite:./data/site.db";
+const migrationUrl = databaseUrl.startsWith("pglite:")
+  ? databaseUrl
+  : process.env.DATABASE_URL_UNPOOLED || databaseUrl;
 const adminConfig = {
   email: process.env.SEED_ADMIN_EMAIL,
   password: process.env.SEED_ADMIN_PASSWORD,
@@ -16,10 +18,11 @@ const adminConfig = {
 parseSeedAdminConfig(adminConfig);
 
 await ensureLocalDatabaseDirectory(databaseUrl);
+await ensureLocalDatabaseDirectory(migrationUrl);
 const { client, db } = await import("../src/db/client");
 
 try {
-  await migrate(db, { migrationsFolder: "./drizzle" });
+  await migrateDatabase(migrationUrl);
   await seedContent(db);
   const adminStatus = await seedDevelopmentAdmin(db, adminConfig);
 

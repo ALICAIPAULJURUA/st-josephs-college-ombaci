@@ -5,7 +5,7 @@ const envSchema = z.object({
     .enum(["development", "test", "production"])
     .default("development"),
   DATABASE_URL: z.string().min(1).optional(),
-  DATABASE_AUTH_TOKEN: z.string().min(1).optional(),
+  DATABASE_URL_UNPOOLED: z.string().min(1).optional(),
   SESSION_SECRET: z.string().min(32).optional(),
   STORAGE_DRIVER: z.enum(["local", "cloudinary"]).default("local"),
   APPLICATION_PRIVATE_STORAGE_DIR: z.string().min(1).optional(),

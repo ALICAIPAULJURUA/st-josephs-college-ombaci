@@ -1,12 +1,17 @@
 import {
+  bigint,
+  boolean,
   index,
   integer,
-  sqliteTable,
+  jsonb,
+  pgTable,
   text,
   uniqueIndex,
-} from "drizzle-orm/sqlite-core";
+} from "drizzle-orm/pg-core";
 
-export const users = sqliteTable("users", {
+const timestamp = (name: string) => bigint(name, { mode: "number" });
+
+export const users = pgTable("users", {
   id: text("id").primaryKey(),
   email: text("email").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
@@ -14,58 +19,52 @@ export const users = sqliteTable("users", {
     .$type<"admin" | "editor" | "admissions">()
     .notNull()
     .default("editor"),
-  createdAt: integer("created_at").notNull(),
-  updatedAt: integer("updated_at").notNull(),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
 });
 
-export const loginAttempts = sqliteTable("login_attempts", {
+export const loginAttempts = pgTable("login_attempts", {
   key: text("key").primaryKey(),
   failures: integer("failures").notNull().default(0),
-  windowStartedAt: integer("window_started_at").notNull(),
-  lockedUntil: integer("locked_until"),
+  windowStartedAt: timestamp("window_started_at").notNull(),
+  lockedUntil: timestamp("locked_until"),
 });
 
-export const settings = sqliteTable("settings", {
+export const settings = pgTable("settings", {
   key: text("key").primaryKey(),
-  value: text("value", { mode: "json" }).$type<unknown>().notNull(),
+  value: jsonb("value").$type<unknown>().notNull(),
   updatedBy: text("updated_by"),
-  updatedAt: integer("updated_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
 });
 
-export const pages = sqliteTable("pages", {
+export const pages = pgTable("pages", {
   key: text("key").primaryKey(),
-  fields: text("fields", { mode: "json" })
-    .$type<Record<string, unknown>>()
-    .notNull(),
-  draftFields: text("draft_fields", { mode: "json" }).$type<
-    Record<string, unknown>
-  >(),
+  fields: jsonb("fields").$type<Record<string, unknown>>().notNull(),
+  draftFields: jsonb("draft_fields").$type<Record<string, unknown>>(),
   draftUpdatedBy: text("draft_updated_by"),
-  draftUpdatedAt: integer("draft_updated_at"),
+  draftUpdatedAt: timestamp("draft_updated_at"),
   status: text("status")
     .$type<"published" | "hidden">()
     .notNull()
     .default("hidden"),
   updatedBy: text("updated_by"),
-  updatedAt: integer("updated_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
 });
 
-export const items = sqliteTable(
+export const items = pgTable(
   "items",
   {
     id: text("id").primaryKey(),
     collection: text("collection").notNull(),
     slug: text("slug").notNull(),
-    fields: text("fields", { mode: "json" })
-      .$type<Record<string, unknown>>()
-      .notNull(),
+    fields: jsonb("fields").$type<Record<string, unknown>>().notNull(),
     status: text("status")
       .$type<"published" | "hidden">()
       .notNull()
       .default("hidden"),
     sortOrder: integer("sort_order").notNull().default(0),
-    publishAt: integer("publish_at"),
-    updatedAt: integer("updated_at").notNull(),
+    publishAt: timestamp("publish_at"),
+    updatedAt: timestamp("updated_at").notNull(),
   },
   (table) => [
     uniqueIndex("items_collection_slug_unique").on(
@@ -80,7 +79,7 @@ export const items = sqliteTable(
   ],
 );
 
-export const media = sqliteTable("media", {
+export const media = pgTable("media", {
   id: text("id").primaryKey(),
   file: text("file").notNull(),
   alt: text("alt").notNull(),
@@ -89,31 +88,22 @@ export const media = sqliteTable("media", {
   credit: text("credit"),
   licence: text("licence"),
   sourceUrl: text("source_url"),
-  isSample: integer("is_sample", { mode: "boolean" }).notNull().default(false),
-  hasPeople: integer("has_people", { mode: "boolean" })
-    .notNull()
-    .default(false),
-  consentRecorded: integer("consent_recorded", { mode: "boolean" })
-    .notNull()
-    .default(false),
-  focalPoint: text("focal_point", { mode: "json" }).$type<{
-    x: number;
-    y: number;
-  }>(),
-  createdAt: integer("created_at").notNull(),
+  isSample: boolean("is_sample").notNull().default(false),
+  hasPeople: boolean("has_people").notNull().default(false),
+  consentRecorded: boolean("consent_recorded").notNull().default(false),
+  focalPoint: jsonb("focal_point").$type<{ x: number; y: number }>(),
+  createdAt: timestamp("created_at").notNull(),
 });
 
-export const revisions = sqliteTable(
+export const revisions = pgTable(
   "revisions",
   {
     id: text("id").primaryKey(),
     recordType: text("record_type").notNull(),
     recordId: text("record_id").notNull(),
-    snapshot: text("snapshot", { mode: "json" })
-      .$type<Record<string, unknown>>()
-      .notNull(),
+    snapshot: jsonb("snapshot").$type<Record<string, unknown>>().notNull(),
     user: text("user"),
-    createdAt: integer("created_at").notNull(),
+    createdAt: timestamp("created_at").notNull(),
   },
   (table) => [
     index("revisions_record_created_at").on(
@@ -124,7 +114,7 @@ export const revisions = sqliteTable(
   ],
 );
 
-export const applications = sqliteTable("applications", {
+export const applications = pgTable("applications", {
   id: text("id").primaryKey(),
   status: text("status")
     .$type<
@@ -137,14 +127,12 @@ export const applications = sqliteTable("applications", {
     >()
     .notNull()
     .default("new"),
-  fields: text("fields", { mode: "json" })
-    .$type<Record<string, unknown>>()
-    .notNull(),
-  createdAt: integer("created_at").notNull(),
-  updatedAt: integer("updated_at").notNull(),
+  fields: jsonb("fields").$type<Record<string, unknown>>().notNull(),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
 });
 
-export const applicationStatusHistory = sqliteTable(
+export const applicationStatusHistory = pgTable(
   "application_status_history",
   {
     id: text("id").primaryKey(),
@@ -164,12 +152,17 @@ export const applicationStatusHistory = sqliteTable(
     actorId: text("actor_id").references(() => users.id, {
       onDelete: "set null",
     }),
-    createdAt: integer("created_at").notNull(),
+    createdAt: timestamp("created_at").notNull(),
   },
-  (table) => [index("application_status_history_application").on(table.applicationId, table.createdAt)],
+  (table) => [
+    index("application_status_history_application").on(
+      table.applicationId,
+      table.createdAt,
+    ),
+  ],
 );
 
-export const applicationFiles = sqliteTable(
+export const applicationFiles = pgTable(
   "application_files",
   {
     id: text("id").primaryKey(),
@@ -181,42 +174,42 @@ export const applicationFiles = sqliteTable(
     originalName: text("original_name").notNull(),
     mimeType: text("mime_type").notNull(),
     size: integer("size").notNull(),
-    createdAt: integer("created_at").notNull(),
+    createdAt: timestamp("created_at").notNull(),
   },
-  (table) => [
-    index("application_files_application").on(table.applicationId),
-  ],
+  (table) => [index("application_files_application").on(table.applicationId)],
 );
 
-export const enquiries = sqliteTable("enquiries", {
+export const enquiries = pgTable("enquiries", {
   id: text("id").primaryKey(),
-  fields: text("fields", { mode: "json" })
-    .$type<Record<string, unknown>>()
-    .notNull(),
-  createdAt: integer("created_at").notNull(),
+  fields: jsonb("fields").$type<Record<string, unknown>>().notNull(),
+  createdAt: timestamp("created_at").notNull(),
 });
 
-export const submissionRateLimits = sqliteTable("submission_rate_limits", {
+export const submissionRateLimits = pgTable("submission_rate_limits", {
   key: text("key").primaryKey(),
   count: integer("count").notNull(),
-  windowStartedAt: integer("window_started_at").notNull(),
+  windowStartedAt: timestamp("window_started_at").notNull(),
 });
 
-export const chatLog = sqliteTable("chat_log", {
-  id: text("id").primaryKey(),
-  question: text("question").notNull(),
-  answered: integer("answered", { mode: "boolean" }).notNull().default(false),
-  createdAt: integer("created_at").notNull(),
-}, (table) => [index("chat_log_created_at").on(table.createdAt)]);
+export const chatLog = pgTable(
+  "chat_log",
+  {
+    id: text("id").primaryKey(),
+    question: text("question").notNull(),
+    answered: boolean("answered").notNull().default(false),
+    createdAt: timestamp("created_at").notNull(),
+  },
+  (table) => [index("chat_log_created_at").on(table.createdAt)],
+);
 
-export const chatRateLimits = sqliteTable("chat_rate_limits", {
+export const chatRateLimits = pgTable("chat_rate_limits", {
   key: text("key").primaryKey(),
   count: integer("count").notNull(),
-  windowStartedAt: integer("window_started_at").notNull(),
+  windowStartedAt: timestamp("window_started_at").notNull(),
 });
 
-export const redirects = sqliteTable("redirects", {
+export const redirects = pgTable("redirects", {
   source: text("source").primaryKey(),
   destination: text("destination").notNull(),
-  createdAt: integer("created_at").notNull(),
+  createdAt: timestamp("created_at").notNull(),
 });

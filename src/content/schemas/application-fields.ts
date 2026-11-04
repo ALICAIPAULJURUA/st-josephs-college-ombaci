@@ -2,95 +2,153 @@ import { z } from "zod";
 
 const rawApplicationFieldDefinitions = [
   {
-    step: "Applicant",
+    label: "Student Information",
+    description: "Please provide the student's personal details",
     fields: [
-      { name: "applicantName", label: "Applicant full name", type: "text" },
-      { name: "dateOfBirth", label: "Date of birth", type: "date" },
-      { name: "sex", label: "Sex", type: "text" },
-      { name: "nationality", label: "Nationality", type: "text" },
       {
-        name: "entryClass",
-        label: "Entry class",
+        name: "studentFirstName",
+        label: "First Name",
+        type: "text",
+        placeholder: "Enter first name",
+      },
+      {
+        name: "studentLastName",
+        label: "Last Name",
+        type: "text",
+        placeholder: "Enter last name",
+      },
+      {
+        name: "dateOfBirth",
+        label: "Date of Birth",
+        type: "date",
+        placeholder: "dd/mm/yyyy",
+      },
+      {
+        name: "gender",
+        label: "Gender",
         type: "select",
+        placeholder: "Select gender",
+        options: ["Male", "Female"],
+      },
+    ],
+  },
+  {
+    label: "Academic Information",
+    description: "Grade and previous school details",
+    fields: [
+      {
+        name: "gradeApplyingFor",
+        label: "Grade Applying For",
+        type: "select",
+        placeholder: "Select a grade",
         options: ["Senior One", "Senior Five"],
       },
       {
-        name: "religion",
-        label: "Religion (optional)",
+        name: "previousSchool",
+        label: "Previous School (if applicable)",
         type: "text",
+        placeholder: "Enter previous school name",
         optional: true,
       },
     ],
   },
   {
-    step: "Previous school and results",
+    label: "Parent/Guardian Information",
+    description: "Primary contact person details",
     fields: [
-      { name: "previousSchool", label: "Previous school", type: "text" },
-      { name: "schoolDistrict", label: "School district", type: "text" },
       {
-        name: "completionYear",
-        label: "Year of completion",
+        name: "guardianFirstName",
+        label: "First Name",
         type: "text",
-        inputMode: "numeric",
+        placeholder: "Enter first name",
       },
       {
-        name: "pleIndexNumber",
-        label: "PLE index number",
+        name: "guardianLastName",
+        label: "Last Name",
         type: "text",
-        optional: true,
-        entryClass: "Senior One",
+        placeholder: "Enter last name",
       },
       {
-        name: "pleAggregate",
-        label: "PLE aggregate",
-        type: "text",
-        optional: true,
-        entryClass: "Senior One",
+        name: "guardianEmail",
+        label: "Email Address",
+        type: "email",
+        placeholder: "parent@example.com",
       },
       {
-        name: "uceIndexNumber",
-        label: "UCE index number",
-        type: "text",
-        optional: true,
-        entryClass: "Senior Five",
-      },
-      {
-        name: "uceResults",
-        label: "UCE results",
-        type: "textarea",
-        optional: true,
-        entryClass: "Senior Five",
-      },
-      {
-        name: "subjectPreferences",
-        label: "Subject combination preferences",
-        type: "textarea",
-        optional: true,
-        entryClass: "Senior Five",
-      },
-    ],
-  },
-  {
-    step: "Parent or guardian",
-    fields: [
-      { name: "guardianName", label: "Parent or guardian name", type: "text" },
-      {
-        name: "guardianRelationship",
-        label: "Relationship to applicant",
-        type: "text",
-      },
-      { name: "guardianPhone", label: "Phone number", type: "tel" },
-      {
-        name: "guardianWhatsApp",
-        label: "WhatsApp (optional)",
+        name: "guardianPhone",
+        label: "Phone Number",
         type: "tel",
+        placeholder: "+256 XXX XXX XXX",
+      },
+      {
+        name: "guardianAddress",
+        label: "Address",
+        type: "textarea",
+        placeholder: "Enter full address",
+      },
+      {
+        name: "guardianOccupation",
+        label: "Occupation",
+        type: "text",
+        placeholder: "Enter occupation",
         optional: true,
       },
-      { name: "guardianEmail", label: "Email address", type: "email" },
+    ],
+  },
+  {
+    label: "Emergency Contact",
+    description: "Alternative contact in case of emergency",
+    fields: [
       {
-        name: "residentialAddress",
-        label: "Residential address",
+        name: "emergencyContactName",
+        label: "Full Name",
+        type: "text",
+        placeholder: "Enter name",
+      },
+      {
+        name: "emergencyContactPhone",
+        label: "Phone Number",
+        type: "tel",
+        placeholder: "+256 XXX XXX XXX",
+      },
+      {
+        name: "emergencyContactRelationship",
+        label: "Relationship",
+        type: "text",
+        placeholder: "e.g., Uncle, Aunt",
+      },
+    ],
+  },
+  {
+    label: "Medical Information",
+    description: "Health details for student care",
+    fields: [
+      {
+        name: "medicalConditions",
+        label: "Medical Conditions",
         type: "textarea",
+        placeholder: "List any medical conditions we should be aware of",
+        optional: true,
+      },
+      {
+        name: "allergies",
+        label: "Allergies",
+        type: "textarea",
+        placeholder: "List any allergies (food, medication, etc.)",
+        optional: true,
+      },
+    ],
+  },
+  {
+    label: "Additional Notes",
+    description: "Any other information you'd like to share",
+    fields: [
+      {
+        name: "additionalNotes",
+        label: "Additional Notes",
+        type: "textarea",
+        placeholder: "Enter any additional information...",
+        optional: true,
       },
     ],
   },
@@ -108,68 +166,87 @@ export const applicationFieldDefinitions = rawApplicationFieldDefinitions.map(
 
 export const applicationDocumentDefinitions = [
   {
-    name: "resultSlip",
-    label: "PLE or UCE result slip",
+    name: "birthCertificate",
+    label: "Birth Certificate",
+    hint: "PDF, JPG, or PNG. Maximum 5 MB.",
     needsConfirmation: true,
   },
   {
-    name: "identityDocument",
-    label: "Birth certificate or identity document",
+    name: "previousReportCard",
+    label: "Previous Report Card (if applicable)",
+    hint: "PDF, JPG, or PNG. Maximum 5 MB.",
     needsConfirmation: true,
   },
   {
-    name: "passportPhoto",
-    label: "Passport photo",
+    name: "immunizationRecords",
+    label: "Immunization Records",
+    hint: "PDF, JPG, or PNG. Maximum 5 MB.",
     needsConfirmation: true,
   },
 ] as const;
 
+export const applicationDocumentGroup = {
+  label: "Required Documents",
+  description: "Upload the following documents (PDF, JPG, PNG - Max 5MB each)",
+} as const;
+
+function requiredText(label: string, maximum: number, minimum = 1) {
+  const requiredMessage = `Enter ${label}.`;
+  return z
+    .string({ error: requiredMessage })
+    .trim()
+    .min(minimum, requiredMessage)
+    .max(maximum, `Keep ${label} to ${maximum} characters or fewer.`);
+}
+
+function optionalText(label: string, maximum: number) {
+  return z
+    .string({ error: `Enter ${label} as text.` })
+    .trim()
+    .max(maximum, `Keep ${label} to ${maximum} characters or fewer.`);
+}
+
 const applicationFieldsBaseSchema = z.object({
-  applicantName: z.string().trim().min(2).max(120),
-  dateOfBirth: z.iso.date(),
-  sex: z.string().trim().min(1).max(50),
-  nationality: z.string().trim().min(2).max(80),
-  entryClass: z.enum(["Senior One", "Senior Five"]),
-  religion: z.string().trim().max(80),
-  previousSchool: z.string().trim().min(2).max(160),
-  schoolDistrict: z.string().trim().min(2).max(100),
-  completionYear: z
-    .string()
-    .regex(/^\d{4}$/, "Enter the four-digit year of completion."),
-  pleIndexNumber: z.string().trim().max(80),
-  pleAggregate: z.string().trim().max(30),
-  uceIndexNumber: z.string().trim().max(80),
-  uceResults: z.string().trim().max(500),
-  subjectPreferences: z.string().trim().max(300),
-  guardianName: z.string().trim().min(2).max(120),
-  guardianRelationship: z.string().trim().min(2).max(80),
-  guardianPhone: z.string().trim().min(5).max(40),
-  guardianWhatsApp: z.string().trim().max(40),
-  guardianEmail: z.email().max(254),
-  residentialAddress: z.string().trim().min(5).max(300),
+  studentFirstName: requiredText("the student's first name", 80),
+  studentLastName: requiredText("the student's last name", 80),
+  dateOfBirth: z.iso.date({ error: "Enter a valid date of birth." }),
+  gender: z.enum(["Male", "Female"], { error: "Choose a gender." }),
+  gradeApplyingFor: z.enum(["Senior One", "Senior Five"], {
+    error: "Choose a grade.",
+  }),
+  previousSchool: optionalText("the previous school name", 160),
+  guardianFirstName: requiredText("the parent's or guardian's first name", 80),
+  guardianLastName: requiredText("the parent's or guardian's last name", 80),
+  guardianOccupation: optionalText("the occupation", 120),
+  guardianAddress: requiredText("a full address", 300, 5),
+  emergencyContactName: requiredText(
+    "the emergency contact's full name",
+    160,
+    2,
+  ),
+  emergencyContactPhone: requiredText(
+    "the emergency contact's phone number",
+    40,
+    5,
+  ),
+  emergencyContactRelationship: requiredText(
+    "the emergency contact's relationship",
+    80,
+    2,
+  ),
+  medicalConditions: optionalText("medical conditions", 2000),
+  allergies: optionalText("allergies", 2000),
+  additionalNotes: optionalText("additional notes", 2000),
+  guardianPhone: requiredText("the parent's or guardian's phone number", 40, 5),
+  guardianEmail: z
+    .email({ error: "Enter a valid email address." })
+    .max(254, "Email addresses must be 254 characters or fewer."),
   consent: z.literal(true, {
     error: "Please confirm the consent statement before continuing.",
   }),
 });
 
-export const applicationFieldsSchema = applicationFieldsBaseSchema.superRefine(
-  (fields, context) => {
-    const requiredByEntryClass =
-      fields.entryClass === "Senior One"
-        ? (["pleIndexNumber", "pleAggregate"] as const)
-        : (["uceIndexNumber", "uceResults"] as const);
-
-    for (const field of requiredByEntryClass) {
-      if (!fields[field]) {
-        context.addIssue({
-          code: "custom",
-          path: [field],
-          message: "This field is required for the selected entry class.",
-        });
-      }
-    }
-  },
-);
+export const applicationFieldsSchema = applicationFieldsBaseSchema;
 
 export type ApplicationFields = z.infer<typeof applicationFieldsSchema>;
 export type ApplicationFieldName = keyof ApplicationFields;
@@ -192,89 +269,20 @@ export const applicationStatusSchema = z.enum([
   "closed",
 ]);
 
-export const applicationFieldGroups = [
-  {
-    label: "Applicant",
-    fields: [
-      "applicantName",
-      "dateOfBirth",
-      "sex",
-      "nationality",
-      "entryClass",
-      "religion",
-    ],
-  },
-  {
-    label: "Previous school and results",
-    fields: [
-      "previousSchool",
-      "schoolDistrict",
-      "completionYear",
-      "pleIndexNumber",
-      "pleAggregate",
-      "uceIndexNumber",
-      "uceResults",
-      "subjectPreferences",
-    ],
-  },
-  {
-    label: "Parent or guardian",
-    fields: [
-      "guardianName",
-      "guardianRelationship",
-      "guardianPhone",
-      "guardianWhatsApp",
-      "guardianEmail",
-      "residentialAddress",
-    ],
-  },
-] as const;
+export const applicationFieldGroups = applicationFieldDefinitions.map(
+  (group) => ({
+    label: group.label,
+    fields: group.fields.map((field) => field.name),
+  }),
+);
 
-export const applicationStepSchemas = [
-  applicationFieldsBaseSchema.pick({
-    applicantName: true,
-    dateOfBirth: true,
-    sex: true,
-    nationality: true,
-    entryClass: true,
-    religion: true,
-  }),
-  applicationFieldsBaseSchema
-    .pick({
-      entryClass: true,
-      previousSchool: true,
-      schoolDistrict: true,
-      completionYear: true,
-      pleIndexNumber: true,
-      pleAggregate: true,
-      uceIndexNumber: true,
-      uceResults: true,
-      subjectPreferences: true,
-    })
-    .superRefine((fields, context) => {
-      const requiredByEntryClass =
-        fields.entryClass === "Senior One"
-          ? (["pleIndexNumber", "pleAggregate"] as const)
-          : (["uceIndexNumber", "uceResults"] as const);
-      for (const field of requiredByEntryClass) {
-        if (!fields[field]) {
-          context.addIssue({
-            code: "custom",
-            path: [field],
-            message: "This field is required for the selected entry class.",
-          });
-        }
-      }
-    }),
-  applicationFieldsBaseSchema.pick({
-    guardianName: true,
-    guardianRelationship: true,
-    guardianPhone: true,
-    guardianWhatsApp: true,
-    guardianEmail: true,
-    residentialAddress: true,
-  }),
-] as const;
+export function applicationFieldLabel(name: string) {
+  for (const group of applicationFieldDefinitions) {
+    const field = group.fields.find((entry) => entry.name === name);
+    if (field) return field.label;
+  }
+  return name.replaceAll(/([A-Z])/g, " $1");
+}
 
 export const contactEnquirySchema = z.object({
   name: z.string().trim().min(2).max(120),

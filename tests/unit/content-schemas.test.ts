@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import { homePageDefaults } from "@/content/defaults/home";
-import { settingsDefaults } from "@/content/defaults/site";
+import {
+  ensureRequestedPrimaryNavigation,
+  requestedPrimaryNavigation,
+  settingsDefaults,
+} from "@/content/defaults/site";
 import {
   buildValidator,
   date,
@@ -64,6 +68,24 @@ describe("content schema validators", () => {
     expect(
       buildValidator(settingsSchema).safeParse(settingsDefaults).success,
     ).toBe(true);
+  });
+
+  it("adds the requested links to existing saved navigation without duplicates", () => {
+    const savedNavigation = settingsDefaults.navigation.primary.filter(
+      (item) =>
+        !requestedPrimaryNavigation.some((link) => link.href === item.href),
+    );
+    const mergedNavigation = ensureRequestedPrimaryNavigation(savedNavigation);
+
+    expect(mergedNavigation.slice(0, 3)).toEqual(requestedPrimaryNavigation);
+    expect(
+      mergedNavigation.filter((item) =>
+        requestedPrimaryNavigation.some((link) => link.href === item.href),
+      ),
+    ).toHaveLength(3);
+    expect(ensureRequestedPrimaryNavigation(mergedNavigation)).toEqual(
+      mergedNavigation,
+    );
   });
 
   it("accepts the Home defaults, including sample photos and string lists", () => {

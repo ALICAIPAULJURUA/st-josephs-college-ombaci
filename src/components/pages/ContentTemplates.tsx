@@ -8,6 +8,7 @@ import type { HomeData } from "@/lib/home";
 import { sanitizeRichText } from "@/lib/admin/rich-text";
 import { contentItemPath } from "@/lib/content-path";
 import { isSafeContentPath } from "@/lib/content-path";
+import { isApplicationSubmissionConfigured } from "@/lib/admissions/readiness";
 import { ApplyBand } from "@/components/home/ApplyBand";
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { JsonLd, siteOrigin } from "@/components/seo/JsonLd";
@@ -525,6 +526,7 @@ export function ContentTemplates({
           feature="application"
           consentHtml={safeContent(page.fields.consentText)}
           siteKey={process.env.TURNSTILE_SITE_KEY ?? ""}
+          submissionReady={isApplicationSubmissionConfigured()}
         />
       ) : null}
       {schema.template === "resources" ? (

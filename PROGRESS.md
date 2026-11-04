@@ -660,6 +660,10 @@ Status: incomplete. SEO, accessibility and security checks pass; performance bud
 
 ### Built
 
+- Set up the Alicai Paul Neon organization and created project `st-josephs-college-ombaci` in AWS US East (N. Virginia), linked to the repository's ignored `.neon` context. Neon CLI installed and authenticated; VS Code Neon plugin installed. The CLI-created branch is `main`.
+- Neon connection variables are stored separately in ignored `.env.neon` so they do not override the local SQLite `DATABASE_URL` expected by the app. Added `.env.neon.example` with variable names only. `neon.ts` declares no additional services; no Neon service deployment was requested or performed.
+- Verified project/org/branch using `neon status`, project listing, and a read-only table-size check. The new database has no user tables. This is infrastructure setup only: the app schema, migration, seed, and runtime adapter remain SQLite-based and have not been migrated to Postgres.
+- After Neon dependency installation, `pnpm lint`, `pnpm typecheck`, `pnpm test` (40 tests), and `pnpm build` pass with local SQLite configuration. During setup, `neon init` briefly placed the Neon Postgres URL in `.env.local`; this was moved to `.env.neon` and local `DATABASE_URL` restored to preserve the app's SQLite behavior.
 - Route metadata with canonical, Open Graph and Twitter fields; escaped, nonce-bearing JSON-LD; generated database-aware sitemap and robots files; and database-backed redirects for changed content addresses.
 - Nonce-based Content Security Policy, production security headers, admin-only content backup download, local SQLite snapshot/restore script and instructions, production dependency audit, Lighthouse CI and axe browser coverage.
 - Reused parsed page/settings validators and collection validators to avoid rebuilding Zod schemas for every request or list item.
@@ -668,15 +672,21 @@ Status: incomplete. SEO, accessibility and security checks pass; performance bud
 - Corrected development-only CSP styling for Next.js tooling without relaxing the production `style-src-elem` policy.
 - Made the multi-route accessibility scan wait for document parsing and gave it enough time for seven templates. Added a deterministic Turnstile verification stub to the isolated E2E server so admissions tests do not depend on Cloudflare availability.
 - Fixed the stale canonical specification path in `AGENTS.md` and the specification.
+- Replaced the admissions wizard with a single-page application form grouped by student, academic, guardian, emergency-contact, medical, document, and additional-note sections. The shared schema validates required details on both client and server; drafts persist in the browser, and submissions continue through the existing private upload, confirmation, Admissions review, and CSV export flow. Historical application fields remain visible in staff review and exports.
+- Fixed application retry behavior by resetting Turnstile after a rejected request, preserving the server error while the new challenge loads, and clearing consent validation as soon as the applicant checks the box. The browser test now covers a service error followed by a successful retry.
+- Added a server-side readiness gate for Turnstile, email delivery, session signing, and production database/private-file configuration. When services are missing, the form explains that submissions are unavailable and links to Contact; the API rejects submissions rather than accepting data without the required workflow.
+- Added Home, Media and News to the main navigation, with Media linking to the existing Gallery page. Existing saved navigation receives any missing links without duplicating configured entries; all other menu links remain intact.
 
 ### Differences from the reference and specification
 
 - The owner selected nonce-based CSP. Next.js consequently renders public routes on demand rather than statically generating their HTML; published database content remains cached and revalidated.
 - The owner selected OpenRouter for the assistant in Phase I, replacing the Anthropic provider described in the original specification.
+- Application documents remain optional pending school confirmation of document requirements. Applicants' health details and other application fields are processed through the existing private admissions workflow.
 
 ### Open questions and blockers
 
 - Lighthouse still misses the required performance score on `/`, `/news` and `/contact`, and the 2.5-second LCP budget on every measured route, including `/admin/login`. The three-run traces show long LCP render delays (about 2.6–3.8 seconds on public routes); the exact cause remains inconsistent between the home panel image and page text. Do not lower or remove the budgets to claim completion.
+- The school still needs to confirm application field/document requirements and approve the admissions privacy and retention wording. In the current local database applications are marked open, but this checkout has no Turnstile or email-provider configuration; the form therefore clearly reports that it cannot accept submissions. Production intake also needs an explicitly configured persistent database and private file volume.
 - Production database/provider and hosting are owner decisions. Production backup scheduling and restore testing cannot be configured until that deployment target is chosen.
 - Production domain, analytics domain, email sender, and approved school content/legal wording still require owner or school input.
 - A non-fatal Next.js image-dimension warning for the crest remains in browser test output.
@@ -709,7 +719,7 @@ Status: incomplete. SEO, accessibility and security checks pass; performance bud
 - Reorganized the admin dashboard around publishing totals, recent activity, clearly grouped attention counts, and prominent quick actions. Visitor reports are identified as unavailable because no reporting store is connected.
 - Replaced the admin sidebar text mark with the school crest and changed TinyMCE's sliding toolbar to a wrapping toolbar so configured tools remain visible.
 - Added browser coverage for the visible crest, fetchable favicon, dashboard overview, and TinyMCE's complete configured toolbar and local script.
-- Follow-up verification: lint, typecheck, unit tests (36), production build, and the full Playwright suite (58) pass. Dashboard/editor layouts remain free of horizontal overflow at 1440, 1024, 820, 640, and 375 px. A pre-existing Next.js image-dimension warning remains on crest rendering.
+- Post-upload-layout verification: lint, typecheck, unit tests (40), production build, and the full Playwright suite (59) pass. Focused admissions browser coverage also passes the successful submission/retry flow and confirms application/contact layouts have no horizontal overflow at 1440, 1024, 820, 640, and 375 px. A pre-existing Next.js image-dimension warning remains on crest rendering.
 
 ### Next
 
