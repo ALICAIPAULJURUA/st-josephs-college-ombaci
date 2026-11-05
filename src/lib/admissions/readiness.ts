@@ -15,7 +15,7 @@ export function isApplicationSubmissionConfigured(
 
   if (
     environment.NODE_ENV === "production" &&
-    (!environment.DATABASE_URL?.trim() ||
+    (!environment.DATABASE_URL?.trim().match(/^postgres(?:ql)?:\/\//) ||
       !environment.APPLICATION_PRIVATE_STORAGE_DIR?.trim())
   ) {
     return false;

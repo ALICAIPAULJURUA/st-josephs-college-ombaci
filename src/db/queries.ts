@@ -1,12 +1,12 @@
 import { createHash } from "node:crypto";
-import { and, eq, isNull, lte, or } from "drizzle-orm";
+import { and, eq, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 
 import { db } from "./client";
 import { items, pages, redirects, settings } from "./schema";
 
 const databaseCacheNamespace = createHash("sha256")
-  .update(process.env.DATABASE_URL || "pglite:./data/site.db")
+  .update(process.env.DATABASE_URL || "pglite:./data/postgres")
   .digest("hex")
   .slice(0, 16);
 
@@ -24,11 +24,29 @@ export const cacheTags = {
   redirects: scopedCacheTag("redirects"),
 };
 
+export async function getSettingsRows(keys?: readonly string[]) {
+  const rows = await db
+    .select({
+      key: settings.key,
+      value: sql<string>`${settings.value}::text`,
+      updatedBy: settings.updatedBy,
+      updatedAt: settings.updatedAt,
+    })
+    .from(settings)
+    .where(keys ? inArray(settings.key, [...keys]) : undefined);
+
+  return rows.map(({ value, ...row }) => {
+    const parsedValue: unknown = JSON.parse(value);
+    return { ...row, value: parsedValue };
+  });
+}
+
 export function getSettings() {
   return unstable_cache(
     async (): Promise<Record<string, unknown>> => {
-      const rows = await db.select().from(settings);
-      return Object.fromEntries(rows.map((row) => [row.key, row.value]));
+      return Object.fromEntries(
+        (await getSettingsRows()).map(({ key, value }) => [key, value]),
+      );
     },
     ["settings", databaseCacheNamespace],
     { revalidate: 60, tags: [cacheTags.settings] },

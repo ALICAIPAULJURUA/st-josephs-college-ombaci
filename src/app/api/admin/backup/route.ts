@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 
+import { getSettingsRows } from "@/db/queries";
 import { db } from "@/db/client";
-import { items, media, pages, redirects, settings } from "@/db/schema";
+import { items, media, pages, redirects } from "@/db/schema";
 import { getAuthenticatedAdmin } from "@/lib/admin/auth";
 
 export const runtime = "nodejs";
@@ -23,7 +24,7 @@ export async function GET() {
 
   const [settingsRows, pageRows, itemRows, mediaRows, redirectRows] =
     await Promise.all([
-      db.select().from(settings),
+      getSettingsRows(),
       db.select().from(pages),
       db.select().from(items),
       db.select().from(media),

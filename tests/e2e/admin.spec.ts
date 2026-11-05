@@ -290,11 +290,17 @@ test("staff can upload and remove a photo from the library", async ({
     buffer: image,
   });
   await page.locator('.admin-upload-card input[name="alt"]').fill(altText);
+  const uploadResponse = page.waitForResponse(
+    (response) =>
+      response.url().endsWith("/api/admin/media") &&
+      response.request().method() === "POST",
+  );
   await page.getByRole("button", { name: "Upload photo" }).click();
+  expect((await uploadResponse).status()).toBe(201);
   const photo = page.locator(".admin-media-card").filter({
     has: page.locator(`input[name="alt"][value="${altText}"]`),
   });
-  await expect(photo).toBeVisible();
+  await expect(photo).toBeVisible({ timeout: 15_000 });
   await expect(photo.locator('input[name="alt"]')).toHaveValue(altText);
 
   page.once("dialog", (dialog) => dialog.accept());

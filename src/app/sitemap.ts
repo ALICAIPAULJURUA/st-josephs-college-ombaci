@@ -8,7 +8,7 @@ import { items, pages } from "@/db/schema";
 import { contentItemPath } from "@/lib/content-path";
 import { siteOrigin } from "@/components/seo/JsonLd";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = Date.now();

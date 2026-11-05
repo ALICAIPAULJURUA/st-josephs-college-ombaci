@@ -26,7 +26,7 @@ describe("database seed", () => {
     const client = new PGlite();
     clients.push(client);
     const pgliteDatabase = drizzle(client, { schema });
-    database = pgliteDatabase as Database;
+    database = pgliteDatabase;
     await migrate(pgliteDatabase, {
       migrationsFolder: resolve(process.cwd(), "drizzle/postgres"),
     });

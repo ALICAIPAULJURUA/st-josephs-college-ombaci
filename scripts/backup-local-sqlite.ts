@@ -3,16 +3,18 @@ import { dirname, join, relative, resolve } from "node:path";
 import { createClient } from "@libsql/client";
 
 const databaseUrl =
-  process.env.SQLITE_DATABASE_URI || "file:./data/site-legacy.sqlite";
+  process.env.SQLITE_DATABASE_URI || "file:./data/site.db";
 if (!databaseUrl.startsWith("file:")) {
   throw new Error(
-    "Local SQLite backup requires DATABASE_URL to use the file: scheme.",
+    "Legacy SQLite backup requires SQLITE_DATABASE_URI to use the file: scheme.",
   );
 }
 
 const databasePath = databaseUrl.slice("file:".length);
 if (!databasePath || databasePath.startsWith(":")) {
-  throw new Error("DATABASE_URL must point to a local SQLite database file.");
+  throw new Error(
+    "SQLITE_DATABASE_URI must point to a local SQLite database file.",
+  );
 }
 
 const sourcePath = resolve(databasePath);

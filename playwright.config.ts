@@ -7,7 +7,7 @@ import {
   E2E_USERS,
 } from "./tests/e2e/constants";
 
-const e2eDatabaseUrl = `file:./data/site-e2e-${randomUUID()}.db`;
+const e2eDatabaseUrl = `pglite:./data/site-e2e-${randomUUID()}`;
 const e2ePrivateStorageDirectory = `./data/private-applications-e2e-${randomUUID()}`;
 process.env.E2E_DATABASE_URL = e2eDatabaseUrl;
 process.env.E2E_PRIVATE_STORAGE_DIR = e2ePrivateStorageDirectory;
@@ -33,6 +33,7 @@ export default defineConfig({
     command: "node --import tsx tests/e2e/start-web-server.ts",
     cwd: process.cwd(),
     url: E2E_BASE_URL,
+    timeout: 120_000,
     reuseExistingServer: false,
     env: {
       DATABASE_URL: e2eDatabaseUrl,

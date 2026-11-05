@@ -1,4 +1,4 @@
-import { PGlite } from "@electric-sql/pglite";
+import { PGlite, types } from "@electric-sql/pglite";
 import { drizzle as drizzlePglite } from "drizzle-orm/pglite";
 import { drizzle as drizzlePostgres } from "drizzle-orm/node-postgres";
 import { PgDatabase, type PgQueryResultHKT } from "drizzle-orm/pg-core";
@@ -12,10 +12,29 @@ type DatabaseClient = {
   close: () => Promise<void>;
 };
 
-function createLocalDatabase(url: string) {
+function getDatabaseUrl(): string {
+  const url = process.env.DATABASE_URL;
+  if (url) return url;
+
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("DATABASE_URL is required in production.");
+  }
+
+  return "pglite:./data/postgres";
+}
+
+function createLocalDatabase(url: string): {
+  client: DatabaseClient;
+  db: Database;
+} {
   const dataDir =
     url === "pglite::memory:" ? undefined : url.slice("pglite:".length);
-  const client = new PGlite(dataDir);
+  const client = new PGlite(dataDir, {
+    parsers: {
+      [types.JSON]: (value) => value,
+      [types.JSONB]: (value) => value,
+    },
+  });
   const database = drizzlePglite(client, { schema });
 
   return {
@@ -24,7 +43,10 @@ function createLocalDatabase(url: string) {
   };
 }
 
-function createRemoteDatabase(url: string) {
+function createRemoteDatabase(url: string): {
+  client: DatabaseClient;
+  db: Database;
+} {
   const client = new Pool({ connectionString: url });
   const database = drizzlePostgres(client, { schema });
 
@@ -35,7 +57,7 @@ function createRemoteDatabase(url: string) {
 }
 
 export function createDatabase(
-  url = process.env.DATABASE_URL || "pglite:./data/site.db",
+  url = getDatabaseUrl(),
 ) {
   if (url.startsWith("pglite:")) return createLocalDatabase(url);
   if (url.startsWith("postgres://") || url.startsWith("postgresql://")) {
@@ -46,4 +68,17 @@ export function createDatabase(
   );
 }
 
-export const { client, db } = createDatabase();
+type DatabaseRegistry = typeof globalThis & {
+  __ombaciDatabaseInstances?: Map<string, ReturnType<typeof createDatabase>>;
+};
+
+const databaseUrl = getDatabaseUrl();
+const registry = globalThis as DatabaseRegistry;
+const instances: Map<string, ReturnType<typeof createDatabase>> =
+  registry.__ombaciDatabaseInstances ?? new Map();
+registry.__ombaciDatabaseInstances = instances;
+const instance = instances.get(databaseUrl) ?? createDatabase(databaseUrl);
+instances.set(databaseUrl, instance);
+
+export const client: DatabaseClient = instance.client;
+export const db: Database = instance.db;

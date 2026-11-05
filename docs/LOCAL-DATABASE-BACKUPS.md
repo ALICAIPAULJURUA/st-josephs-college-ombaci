@@ -3,7 +3,7 @@
 The `pnpm backup:sqlite` command is for the legacy local SQLite database. It
 creates a consistent snapshot with `VACUUM INTO`, verifies it with
 `PRAGMA integrity_check`, and removes its own backup files after 30 days. It
-reads `SQLITE_DATABASE_URI` (or defaults to `file:./data/site-legacy.sqlite`)
+reads `SQLITE_DATABASE_URI` (or defaults to the previous local `file:./data/site.db`)
 and does not back up the active PostgreSQL/Neon database. Backup files are
 written to `backups/` next to the database and are excluded from Git.
 

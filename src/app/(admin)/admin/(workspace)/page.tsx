@@ -136,13 +136,19 @@ export default async function AdminDashboardPage() {
       .select({ total: count() })
       .from(enquiries)
       .where(
-        gte(enquiries.createdAt, sql<number>`(unixepoch() - 604800) * 1000`),
+        gte(
+          enquiries.createdAt,
+          sql<number>`(extract(epoch from now()) * 1000 - 604800000)::bigint`,
+        ),
       ),
     db
       .select({ total: count() })
       .from(chatLog)
       .where(
-        gte(chatLog.createdAt, sql<number>`(unixepoch() - 604800) * 1000`),
+        gte(
+          chatLog.createdAt,
+          sql<number>`(extract(epoch from now()) * 1000 - 604800000)::bigint`,
+        ),
       ),
     db
       .select({ total: count() })

@@ -660,10 +660,11 @@ Status: incomplete. SEO, accessibility and security checks pass; performance bud
 
 ### Built
 
-- Set up the Alicai Paul Neon organization and created project `st-josephs-college-ombaci` in AWS US East (N. Virginia), linked to the repository's ignored `.neon` context. Neon CLI installed and authenticated; VS Code Neon plugin installed. The CLI-created branch is `main`.
-- Neon connection variables are stored separately in ignored `.env.neon` so they do not override the local SQLite `DATABASE_URL` expected by the app. Added `.env.neon.example` with variable names only. `neon.ts` declares no additional services; no Neon service deployment was requested or performed.
-- Verified project/org/branch using `neon status`, project listing, and a read-only table-size check. The new database has no user tables. This is infrastructure setup only: the app schema, migration, seed, and runtime adapter remain SQLite-based and have not been migrated to Postgres.
-- After Neon dependency installation, `pnpm lint`, `pnpm typecheck`, `pnpm test` (40 tests), and `pnpm build` pass with local SQLite configuration. During setup, `neon init` briefly placed the Neon Postgres URL in `.env.local`; this was moved to `.env.neon` and local `DATABASE_URL` restored to preserve the app's SQLite behavior.
+- Set up the Alicai Paul Neon organization and project `st-josephs-college-ombaci` in AWS US East (N. Virginia). The repository's ignored `.neon` context points to the isolated `dev` branch; the default `main` branch remains untouched.
+- The app uses the pooled Neon `DATABASE_URL` from ignored `.env.local` at runtime and the direct `DATABASE_URL_UNPOOLED` for migrations. `.env.neon` keeps the default-branch connection values separate. Local development and isolated E2E tests use PGlite. No credentials are recorded in repository files.
+- Migrated the PostgreSQL schema and public defaults to Neon `dev`. Verified 30 settings, 31 pages, and 40 list items; applications, application files, enquiries, and chat logs are empty. One development user exists. No private records from the legacy SQLite database were transferred; that database remains untouched.
+- Fixed PGlite JSONB scalar parsing and shared the database instance across Next.js route bundles so API writes are visible in admin reads. The settings query reads JSONB text before parsing, preserving numeric-looking phone numbers across database drivers.
+- The Neon migration and runtime changes pass `pnpm lint`, `pnpm typecheck`, `pnpm test` (40 tests), `pnpm build`, and `pnpm test:e2e` (59 tests). A development-server smoke test against the configured Neon branch returned HTTP 200 for `/` and `/apply`.
 - Route metadata with canonical, Open Graph and Twitter fields; escaped, nonce-bearing JSON-LD; generated database-aware sitemap and robots files; and database-backed redirects for changed content addresses.
 - Nonce-based Content Security Policy, production security headers, admin-only content backup download, local SQLite snapshot/restore script and instructions, production dependency audit, Lighthouse CI and axe browser coverage.
 - Reused parsed page/settings validators and collection validators to avoid rebuilding Zod schemas for every request or list item.
@@ -676,6 +677,8 @@ Status: incomplete. SEO, accessibility and security checks pass; performance bud
 - Fixed application retry behavior by resetting Turnstile after a rejected request, preserving the server error while the new challenge loads, and clearing consent validation as soon as the applicant checks the box. The browser test now covers a service error followed by a successful retry.
 - Added a server-side readiness gate for Turnstile, email delivery, session signing, and production database/private-file configuration. When services are missing, the form explains that submissions are unavailable and links to Contact; the API rejects submissions rather than accepting data without the required workflow.
 - Added Home, Media and News to the main navigation, with Media linking to the existing Gallery page. Existing saved navigation receives any missing links without duplicating configured entries; all other menu links remain intact.
+- Fixed GitHub Actions' pnpm setup failure by using the exact package-manager version already pinned in `package.json`. CI now migrates and seeds its PGlite database before the production build and Lighthouse run, matching the current PostgreSQL/PGlite runtime instead of the removed SQLite setup.
+- Made the database-backed sitemap render at request time so Vercel builds do not try to query an uninitialized production schema. Production requires an explicit PostgreSQL `DATABASE_URL`; it no longer silently falls back to an ephemeral local database. Added Vercel environment and database setup guidance.
 
 ### Differences from the reference and specification
 
@@ -685,9 +688,9 @@ Status: incomplete. SEO, accessibility and security checks pass; performance bud
 
 ### Open questions and blockers
 
-- Lighthouse still misses the required performance score on `/`, `/news` and `/contact`, and the 2.5-second LCP budget on every measured route, including `/admin/login`. The three-run traces show long LCP render delays (about 2.6–3.8 seconds on public routes); the exact cause remains inconsistent between the home panel image and page text. Do not lower or remove the budgets to claim completion.
+- The latest three-run Lighthouse CI run (2026-11-05) misses the required performance score and 2.5-second LCP budget on every measured route. LCP varied between a home image or heading, an About image, the News introduction, the Contact heading, and the admin login introduction, so there is no single slow LCP asset. Warm requests had a first-byte time around 470 ms, with occasional initial requests around 2.8–2.9 seconds. Sampled traces show 2.5–2.8 seconds of main-thread work, including about 1.1–1.2 seconds of script evaluation; the remaining render delay is not yet isolated. Do not lower or remove the budgets to claim completion.
 - The school still needs to confirm application field/document requirements and approve the admissions privacy and retention wording. In the current local database applications are marked open, but this checkout has no Turnstile or email-provider configuration; the form therefore clearly reports that it cannot accept submissions. Production intake also needs an explicitly configured persistent database and private file volume.
-- Production database/provider and hosting are owner decisions. Production backup scheduling and restore testing cannot be configured until that deployment target is chosen.
+- Neon `dev` is migrated and verified; the default `main` branch remains unmigrated. Production rollout still needs explicit approval, and production backup scheduling and restore testing need a deployment target.
 - Production domain, analytics domain, email sender, and approved school content/legal wording still require owner or school input.
 - A non-fatal Next.js image-dimension warning for the crest remains in browser test output.
 
@@ -698,6 +701,9 @@ Status: incomplete. SEO, accessibility and security checks pass; performance bud
 - `pnpm test`: pass, 13 files and 36 tests.
 - `pnpm build`: pass; Next.js 16.4.3 compiled all public, admin and API routes. Public pages render dynamically to support the selected nonce CSP.
 - `pnpm test:e2e`: pass, 57 tests, including application/contact submissions, deferred form hydration, seven public template/mobile axe checks, admin axe, reduced motion, SEO/security, publishing, and responsive checks.
+- Neon migration follow-up: `pnpm lint`, `pnpm typecheck`, `pnpm test` (40 tests), and `pnpm build` pass. The latest full Playwright run passed all 59 tests in 8.5 minutes after fixing PGlite route-bundle sharing and JSONB string parsing; settings, media upload, application review, and enquiry coverage passed. The browser run logged non-fatal Next.js image sizing and LCP-priority warnings.
+- Neon `dev` read-only verification: 30 settings, 31 pages, 40 items, 0 applications, 0 application files, 0 enquiries, 0 chat logs, and 1 development user. `neon status` confirmed `dev` is not the default branch. The `/` and `/apply` routes both returned HTTP 200 through `pnpm dev` with no application errors.
+- The Node PostgreSQL driver emits a non-fatal SSL-mode deprecation warning for the current connection string; no connection values were printed or changed.
 - `pnpm audit --prod`: pass; no known vulnerabilities.
 - `pnpm check:content`: pass; 10 sample photos, 0 `[To be confirmed]` markers and 0 unfilled photo slots.
 - Responsive browser tests: pass for 1440, 1024, 820, 640 and 375 px with no horizontal overflow.
@@ -705,11 +711,11 @@ Status: incomplete. SEO, accessibility and security checks pass; performance bud
 
 | Route | Median performance | Median LCP | Median accessibility | Median best practices | Median SEO |
 |---|---:|---:|---:|---:|---:|
-| `/` | 0.84 | 3.96 s | 1.00 | 1.00 | 1.00 |
-| `/about` | 0.90 | 3.25 s | 1.00 | 1.00 | 1.00 |
-| `/news` | 0.86 | 3.15 s | 1.00 | 1.00 | 1.00 |
-| `/contact` | 0.67 | 4.17 s | 1.00 | 0.96 | 1.00 |
-| `/admin/login` | 0.83 | 2.89 s | 1.00 | 0.96 | 0.54 |
+| `/` | 0.81 | 4.10 s | 1.00 | 1.00 | 1.00 |
+| `/about` | 0.82 | 3.33 s | 1.00 | 1.00 | 1.00 |
+| `/news` | 0.81 | 3.22 s | 1.00 | 1.00 | 1.00 |
+| `/contact` | 0.72 | 3.96 s | 1.00 | 0.96 | 1.00 |
+| `/admin/login` | 0.88 | 2.56 s | 1.00 | 0.96 | 0.54 |
 
 - Public CLS was at most 0.001 and page transfer remained under 465 KB. Home JavaScript transfer was about 161 KB (under the 170 KB budget). Admin SEO is intentionally excluded from the Lighthouse assertion matrix because the admin is `noindex`.
 - Route-specific splitting reduced JavaScript transfer on ordinary content pages by about 36 KB; the homepage remains within its configured JavaScript budget. Contact loads its form bundle by design.

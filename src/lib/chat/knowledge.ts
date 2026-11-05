@@ -1,8 +1,9 @@
 import { and, eq, inArray, isNull, lte, or } from "drizzle-orm";
 import sanitizeHtml from "sanitize-html";
 
+import { getSettingsRows } from "@/db/queries";
 import { db } from "@/db/client";
-import { items, pages, settings } from "@/db/schema";
+import { items, pages } from "@/db/schema";
 
 const pageRoutes: Record<string, string> = {
   about: "/about",
@@ -101,9 +102,7 @@ export function compileAssistantKnowledge(input: KnowledgeInput) {
 
   for (const item of input.itemRows) {
     const route =
-      allowedCollections[
-        item.collection as keyof typeof allowedCollections
-      ];
+      allowedCollections[item.collection as keyof typeof allowedCollections];
     if (!route) continue;
     if (item.collection === "faqs" && item.fields.feedsAssistant !== true) {
       continue;
@@ -146,7 +145,8 @@ export function compileAssistantKnowledge(input: KnowledgeInput) {
       : "",
   ].filter(Boolean);
 
-  if (contact.length > 0) sections.push(`School information\n${contact.join("\n")}`);
+  if (contact.length > 0)
+    sections.push(`School information\n${contact.join("\n")}`);
 
   return [
     "KNOWLEDGE",
@@ -160,7 +160,12 @@ export async function buildAssistantKnowledge(now = Date.now()) {
     db
       .select({ key: pages.key, fields: pages.fields })
       .from(pages)
-      .where(and(eq(pages.status, "published"), inArray(pages.key, Object.keys(pageRoutes)))),
+      .where(
+        and(
+          eq(pages.status, "published"),
+          inArray(pages.key, Object.keys(pageRoutes)),
+        ),
+      ),
     db
       .select({
         collection: items.collection,
@@ -175,19 +180,14 @@ export async function buildAssistantKnowledge(now = Date.now()) {
           or(isNull(items.publishAt), lte(items.publishAt, now)),
         ),
       ),
-    db
-      .select({ key: settings.key, value: settings.value })
-      .from(settings)
-      .where(
-        inArray(settings.key, [
-          "motto",
-          "phone",
-          "email",
-          "whatsappNumber",
-          "applicationsOpen",
-          "notice",
-        ]),
-      ),
+    getSettingsRows([
+      "motto",
+      "phone",
+      "email",
+      "whatsappNumber",
+      "applicationsOpen",
+      "notice",
+    ]),
   ]);
 
   return compileAssistantKnowledge({ pageRows, itemRows, settingsRows });

@@ -22,9 +22,7 @@ async function fillPanelDescription(
   const panelLabels = page.getByLabel("Panel label", { exact: false });
   const panelIndex = await panelLabels.evaluateAll(
     (inputs, label) =>
-      inputs.findIndex(
-        (input) => (input as HTMLInputElement).value === label,
-      ),
+      inputs.findIndex((input) => (input as HTMLInputElement).value === label),
     panelLabel,
   );
   expect(panelIndex).toBeGreaterThanOrEqual(0);
@@ -111,6 +109,9 @@ test("publishing Settings updates the header, footer, notice and floating contro
     .getByLabel("Show the school assistant", { exact: false })
     .uncheck();
 
+  await expect(page.locator('input[name="fields"]')).toHaveValue(
+    /"whatsappNumber":"256700123456"/,
+  );
   await page.getByRole("button", { name: "Publish" }).click();
   await expect(page.getByText("Changes published.")).toBeVisible();
 

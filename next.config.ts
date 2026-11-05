@@ -5,6 +5,7 @@ import { productionSecurityHeaders, securityHeaders } from "./src/lib/headers";
 const nextConfig: NextConfig = {
   devIndicators: false,
   poweredByHeader: false,
+  serverExternalPackages: ["@electric-sql/pglite"],
   images: {
     qualities: [65, 75],
   },

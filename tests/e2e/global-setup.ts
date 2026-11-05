@@ -22,17 +22,17 @@ export async function cleanupE2EDatabase() {
 }
 
 export default async function globalSetup() {
-  await ensureLocalDatabaseDirectory("pglite:./data/site.db");
+  await ensureLocalDatabaseDirectory("pglite:./data/postgres");
   const databaseUrl = process.env.E2E_DATABASE_URL ?? E2E_DATABASE_URL;
   await ensureLocalDatabaseDirectory(databaseUrl);
   await cleanupE2EDatabase();
   const { client: defaultClient, createDatabase } =
     await import("../../src/db/client");
   await defaultClient.close();
+  await migrateDatabase(databaseUrl);
   const { client, db } = createDatabase(databaseUrl);
 
   try {
-    await migrateDatabase(databaseUrl);
     await seedContent(db);
     await db
       .insert(settings)

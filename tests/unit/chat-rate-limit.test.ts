@@ -15,7 +15,7 @@ describe("assistant rate limits", () => {
   beforeEach(async () => {
     client = new PGlite();
     const pgliteDatabase = drizzle(client, { schema });
-    database = pgliteDatabase as Database;
+    database = pgliteDatabase;
     await migrate(pgliteDatabase, {
       migrationsFolder: resolve(process.cwd(), "drizzle/postgres"),
     });

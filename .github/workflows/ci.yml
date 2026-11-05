@@ -16,8 +16,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with:
-          version: 12
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -29,24 +27,29 @@ jobs:
       - run: pnpm test
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:e2e
-      - run: pnpm build
-      - name: Prepare Lighthouse content database
+      - name: Prepare build database
         env:
-          DATABASE_URL: file:./data/site.db
+          DATABASE_URL: pglite:./data/postgres
           NODE_ENV: development
         run: |
           pnpm db:migrate
           pnpm seed
+      - name: Build production app
+        env:
+          DATABASE_URL: pglite:./data/postgres
+          NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
+          NODE_ENV: production
+        run: pnpm build
       - name: Run Lighthouse CI
         env:
-          DATABASE_URL: file:./data/site.db
+          DATABASE_URL: pglite:./data/postgres
           NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
           NODE_ENV: production
         run: pnpm exec lhci autorun
       - name: Evaluate the assistant
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          DATABASE_URL: file:./data/site.db
+          DATABASE_URL: pglite:./data/postgres
           NODE_ENV: development
         run: |
           if [ -n "$OPENROUTER_API_KEY" ]; then

@@ -44,7 +44,7 @@ describe("application submission readiness", () => {
     const productionEnvironment: NodeJS.ProcessEnv = {
       ...developmentEnvironment,
       NODE_ENV: "production",
-      DATABASE_URL: "libsql://school.example",
+      DATABASE_URL: "postgresql://school.example",
       APPLICATION_PRIVATE_STORAGE_DIR: "/var/private/applications",
     };
 
@@ -53,6 +53,12 @@ describe("application submission readiness", () => {
       isApplicationSubmissionConfigured({
         ...productionEnvironment,
         DATABASE_URL: "",
+      }),
+    ).toBe(false);
+    expect(
+      isApplicationSubmissionConfigured({
+        ...productionEnvironment,
+        DATABASE_URL: "pglite:./data/postgres",
       }),
     ).toBe(false);
     expect(
