@@ -27,19 +27,19 @@ jobs:
       - run: pnpm test
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:e2e
-      - name: Prepare build database
+      - name: Build production app
+        env:
+          DATABASE_URL: postgresql://build:build@127.0.0.1:1/build?sslmode=disable
+          NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
+          NODE_ENV: production
+        run: pnpm build
+      - name: Prepare Lighthouse content database
         env:
           DATABASE_URL: pglite:./data/postgres
           NODE_ENV: development
         run: |
           pnpm db:migrate
           pnpm seed
-      - name: Build production app
-        env:
-          DATABASE_URL: pglite:./data/postgres
-          NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
-          NODE_ENV: production
-        run: pnpm build
       - name: Run Lighthouse CI
         env:
           DATABASE_URL: pglite:./data/postgres

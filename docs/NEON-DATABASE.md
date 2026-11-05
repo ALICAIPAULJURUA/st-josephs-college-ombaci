@@ -46,12 +46,14 @@ school approval of application/privacy wording are separate launch requirements.
 
 ## Vercel deployments
 
-The Next.js build generates `sitemap.xml` from the database, so `DATABASE_URL`
-must point to a migrated and seeded PostgreSQL branch in every Vercel environment
-that builds the app. Use a pooled Neon URL for the app. Set `DATABASE_URL` in
-Vercel's Preview and Production scopes as appropriate; never use the development
-branch for Production. Production builds fail explicitly when `DATABASE_URL` is
-missing instead of falling back to a local database that Vercel cannot persist.
+The sitemap and public pages read from the database at request time. Vercel
+requires `DATABASE_URL` to be set for each environment, but the build does not
+connect to it or require the schema to exist. After deployment, the selected
+branch must be migrated and seeded before its pages can load. Use a pooled Neon
+URL for the app. Set `DATABASE_URL` in Vercel's Preview and Production scopes as
+appropriate; never use the development branch for Production. Production fails
+explicitly when `DATABASE_URL` is missing instead of falling back to a local
+database that Vercel cannot persist.
 
 Set `NEXT_PUBLIC_SITE_URL` to the canonical URL for each environment and provide
 a `SESSION_SECRET` of at least 32 characters for admin sessions. Before
