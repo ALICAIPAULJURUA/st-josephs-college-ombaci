@@ -32,17 +32,19 @@ directory for local development. Seed public defaults with `pnpm seed`.
 
 ## Database contents and production readiness
 
-The Neon `dev` branch has the versioned schema and public school defaults.
+The Neon `dev` branch has the versioned schema and public school defaults. The
+`main` branch schema was migrated from the committed Drizzle migrations on
+2026-11-05 with the owner's approval; production defaults have not been seeded.
 Applications, application files, enquiries, chat logs and local user accounts
 were not copied from SQLite. The seed command created one development admin;
 no legacy passwords or production user accounts were transferred. Keep
 applicant records in the legacy database until the school approves the
 destination and a secure transfer and retention plan.
 
-The Neon `main` branch is not migrated. Review migrations and content on `dev`
-before explicitly deploying the schema and seeding approved content to `main`.
-Private file storage, email delivery, Turnstile, production backup/restore and
-school approval of application/privacy wording are separate launch requirements.
+Before seeding `main`, configure durable media storage (Cloudinary) so sample
+photos are stored somewhere that survives Vercel deployments. Production admin
+provisioning, application private storage, email delivery, Turnstile, backups,
+and school approval of application/privacy wording are also launch requirements.
 
 ## Vercel deployments
 
